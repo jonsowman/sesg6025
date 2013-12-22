@@ -5,6 +5,26 @@
 import numpy
 import scipy
 
+def verify(s, h):
+    """
+    Verify that the solution matrix 's' meets the requirement
+    that the Laplace equation is equation to 2 at coordinates (0.5, 0.5)
+    with discretisation distance 'h'
+    """
+    # We will assume that we have a square matrix
+    if not s.shape[0] == s.shape[1]:
+        raise AssertionError("Solution matrix is not square")
+    size = s.shape[0]
+    c = (size - 1)/2
+
+    # Estimate d2u/dx2 + d2u/dy2
+    x = (s[c-1,c] - 2*s[c,c] + s[c+1,c] ) / h**2
+    y = (s[c,c-1] - 2*s[c,c] + s[c,c+1] ) / h**2
+    result = x+y
+
+    assert numpy.allclose(result, 2.0, atol=1e-08)
+    print("[Ex1] del-squared u is 2 as required")
+
 def embed(a, value):
     # Embed matrix into an array with the boundary conditions in
     # a is the matrix and value is the value on the (fixed) boundary
@@ -216,7 +236,7 @@ b = numpy.zeros([n**2, 1])
 
 # For rho(0.5, 0.5) = 2 we just require that the middle element of b
 # is -2*(h**2), as per equation 4.51
-b[((n**2)-1)/2] = -2*(h**2)
+b[((n**2)-1)/2] = 2*(h**2)
 
 # This sets it up by hand as a check
 #b = [[0], [0], [0], [0], [-2*(h**2)], [0], [0], [0], [0]]
@@ -240,6 +260,9 @@ print("")
 soln_wrap = numpy.reshape(soln, [n, n])
 soln_full = embed(soln_wrap, 100)
 print soln_full
+
+print('================')
+verify(soln_full, h)
 
 print('================')
 print("Plotting...")
