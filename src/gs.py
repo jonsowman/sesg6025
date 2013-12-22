@@ -1,11 +1,12 @@
-# SESG6025 Gauss-Seidel Method
+# SESG6025 Gauss-Seidel SOR Method
 # Jon Sowman 2013
 from pprint import pprint
 from numpy import array, zeros, diag, diagflat, dot, allclose
 
-def gs(A, b, iterations=25, x=None):
+def sor(A, b, iterations=25, x=None, omega=1.0):
     """
-    Solve the linear matrix equation Ax = b via the gs iterative method
+    Solve the linear matrix equation Ax = b via the (successive
+    over relaxation (SOR) iterative method
     """
     # Create an initial guess
     if x is None:
@@ -28,7 +29,7 @@ def gs(A, b, iterations=25, x=None):
                 t1 = t1 + A[i, j] * x[j]
             for j in range(i+1, n):
                 t2 = t2 + A[i, j] * x[j]
-            x[i] = 1/A[i, i] * (b[i] - t1 - t2)
+            x[i] = omega/A[i, i] * (b[i] - t1 - t2) + (1.0-omega)*x[i]
     return x
 
 # Set up problem here
@@ -37,6 +38,5 @@ b = array([7.0, -21.0, 15.0])
 guess = array([1.0, 2.0, 3.0])
 
 # Solve
-sol = gs(A, b, iterations=25, x=guess)
-pprint(sol)
-#assert allclose(sol, array([2.0, 4.0, 3.0]), atol = 1e-08)
+sol = sor(A, b, iterations=25, x=guess, omega=.8)
+assert allclose(sol, array([2.0, 4.0, 3.0]), atol = 1e-08)
