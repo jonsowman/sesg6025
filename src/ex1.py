@@ -23,7 +23,7 @@ def verify(s, h):
     result = x+y
 
     assert numpy.allclose(result, 2.0, atol=1e-08)
-    print("[Ex1] del-squared u is 2 as required")
+    print('[Ex1] ' + u'\u2207\u00b2' + 'u = 2 at u = (0.5,0.5) as required')
 
 def embed(a, value):
     # Embed matrix into an array with the boundary conditions in
