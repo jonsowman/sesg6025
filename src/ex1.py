@@ -25,6 +25,36 @@ def verify(s, h):
     assert numpy.allclose(result, 2.0, atol=1e-08)
     print('[Ex1] ' + u'\u2207\u00b2' + 'u = 2 at u = (0.5,0.5) as required')
 
+
+def sor(A, b, iterations=25, x=None, omega=1.0):
+    """
+    Solve the linear matrix equation Ax = b via the (successive
+    over relaxation (SOR) iterative method
+    """
+    # Create an initial guess
+    if x is None:
+        x = numpy.zeros(len(A[0]))
+
+    # Create a vector of the diagonal elements of A
+    D = numpy.diag(A)
+    # and subtract them from A
+    R = A - numpy.diagflat(D)
+
+    # Get the number of elements in x
+    n = len(A[0])
+
+    # Iterate 'iterations' times
+    for its in range(iterations):
+        for i in range(n):
+            t1 = 0
+            t2 = 0
+            for j in range(i):
+                t1 = t1 + A[i, j] * x[j]
+            for j in range(i+1, n):
+                t2 = t2 + A[i, j] * x[j]
+            x[i] = omega/A[i, i] * (b[i] - t1 - t2) + (1.0-omega)*x[i]
+    return x
+
 def embed(a, value):
     # Embed matrix into an array with the boundary conditions in
     # a is the matrix and value is the value on the (fixed) boundary
@@ -39,6 +69,217 @@ def embed(a, value):
     #    a_tmp[0, i] = value
     return a_tmp
 
+def complex_stencil(n):
+    """
+    Use the more complex 8 point stencil described in the coursework handout
+    to construct the matrix a
+    """
+
+    a = numpy.zeros([n**2, n**2])
+
+    for i in range(n):
+        for j in range(n):
+            idx = i*n+j
+            idx_n = (i-1)*n+j
+            idx_nn = (i-2)*n+j
+            idx_s = (i+1)*n+j
+            idx_ss = (i+2)*n+j
+            idx_e = i*n+j+1
+            idx_ee = i*n+j+2
+            idx_w = i*n+j-1
+            idx_ww = i*n+j-2
+
+            # Central index will always exist in the matrix
+            a[idx, idx] = -60
+            if idx_nn in range(n**2):
+                a[idx, idx_nn] = -1
+            if idx_n in range(n**2):
+                a[idx, idx_n] = 16
+            if idx_ss in range(n**2):
+                a[idx, idx_ss] = -1
+            if idx_s in range(n**2):
+                a[idx, idx_s] = 16
+            if idx_ee in range(n**2):
+                a[idx, idx_ee] = -1
+            if idx_e in range(n**2):
+                a[idx, idx_e] = 16
+            if idx_ww in range(n**2):
+                a[idx, idx_ww] = -1
+            if idx_w in range(n**2):
+                a[idx, idx_w] = 16
+
+    return a
+
+def simple_stencil(n):
+    """
+    Use the stencil derived in lectures, the first central difference
+    approximation
+    """
+    # Clear matrix and set it up
+    a = numpy.zeros([n**2, n**2])
+
+    print('================')
+    print('Interior')
+
+    # Build full matrix
+    # Interior
+    for i in range(1, n-1):
+        for j in range(1, n-1):
+            north = (i-1)*n+j
+            west = i*n+j-1
+            index = i*n+j
+            east = i*n+j+1
+            south = (i+1)*n+j
+
+            a[index, north] = 1
+            a[index, west] = 1
+            a[index, index] = -4
+            a[index, east] = 1
+            a[index, south] = 1
+            print i, j, index
+
+    print(a)
+
+    # Edges
+    # North/Top (nothing further North)
+    print('================')
+    print("Top")
+
+    # First row number
+    i = 0
+
+    # Note that the range(1, n-1) means that we JUST middle ones
+    # e.g. if n=5 then range(1, 4) = [1, 2, 3]
+    for j in range(1, n-1):
+        #north = (i-1)*n+j
+        west = i*n+j-1
+        index = i*n+j
+        east = i*n+j+1
+        south = (i+1)*n+j
+
+        #a[index, north] = 1
+        a[index, west] = 1
+        a[index, index] = -4
+        a[index, east] = 1
+        a[index, south] = 1
+        print i, j, index
+
+    # West/Left (nothing further West)
+    print('================')
+    print("West")
+
+    # First column number
+    j = 0
+
+    for i in range(1, n-1):
+        north = (i-1)*n+j
+        #west = i*n+j-1
+        index = i*n+j
+        east = i*n+j+1
+        south = (i+1)*n+j
+
+        a[index, north] = 1
+        #a[index, west] = 1
+        a[index, index] = -4
+        a[index, east] = 1
+        a[index, south] = 1
+        print i, j, index
+
+    # East/Right (nothing further East)
+    print('================')
+    print("East")
+
+    # Last column number
+    j = n - 1
+
+    for i in range(1, n-1):
+        north = (i-1)*n+j
+        west = i*n+j-1
+        index = i*n+j
+        #east = i*n+j+1
+        south = (i+1)*n+j
+
+        a[index, north] = 1
+        a[index, west] = 1
+        a[index, index] = -4
+        #a[index, east] = 1
+        a[index, south] = 1
+        print i, j, index
+
+    # South / Bottom (nothing further South)
+    print('================')
+    print("South")
+
+    # Last row number
+    i = n - 1
+
+    for j in range(1, n-1):
+        north = (i-1)*n+j
+        west = i*n+j-1
+        index = i*n+j
+        east = i*n+j+1
+        #south = (i+1)*n+j
+
+        a[index, north] = 1
+        a[index, west] = 1
+        a[index, index] = -4
+        a[index, east] = 1
+        #a[index, south] = 1
+        print i, j, index
+
+    print('================')
+    print("Corners")
+
+    # Top Left
+    i = 0
+    j = 0
+    index = i*n+j
+    east = i*n+j+1
+    south = (i+1)*n+j
+
+    a[index, index] = -4
+    a[index, east] = 1
+    a[index, south] = 1
+    print i, j, index
+
+    # Top Right
+    i = 0
+    j = n - 1
+    index = i*n+j
+    west = i*n+j-1
+    south = (i+1)*n+j
+
+    a[index, index] = -4
+    a[index, west] = 1
+    a[index, south] = 1
+    print i, j, index
+
+    # Bottom Left
+    i = n - 1
+    j = 0
+    index = i*n+j
+    north = (i-1)*n+j
+    east = i*n+j+1
+
+    a[index, index] = -4
+    a[index, north] = 1
+    a[index, east] = 1
+    print i, j, index
+
+    # Bottom Right
+    i = n - 1
+    j = n - 1
+    index = i*n+j
+    north = (i-1)*n+j
+    west = i*n+j-1
+
+    a[index, index] = -4
+    a[index, north] = 1
+    a[index, west] = 1
+    print i, j, index
+
+    return a
+
 # Set up printing of the array so it displays nicely
 numpy.set_printoptions(precision=0, linewidth=120)
 
@@ -52,172 +293,8 @@ n_full = n + 2
 h = 1.0 / n_full
 print("h is %.3f" % h)
 
-# Clear matrix and set it up
-a = numpy.zeros([n**2, n**2])
-
-print('================')
-print('Interior')
-
-# Build full matrix
-# Interior
-for i in range(1, n-1):
-    for j in range(1, n-1):
-        north = (i-1)*n+j
-        west = i*n+j-1
-        index = i*n+j
-        east = i*n+j+1
-        south = (i+1)*n+j
-
-        a[index, north] = 1
-        a[index, west] = 1
-        a[index, index] = -4
-        a[index, east] = 1
-        a[index, south] = 1
-        print i, j, index
-
-print(a)
-
-# Edges
-# North/Top (nothing further North)
-print('================')
-print("Top")
-
-# First row number
-i = 0
-
-# Note that the range(1, n-1) means that we JUST middle ones
-# e.g. if n=5 then range(1, 4) = [1, 2, 3]
-for j in range(1, n-1):
-    #north = (i-1)*n+j
-    west = i*n+j-1
-    index = i*n+j
-    east = i*n+j+1
-    south = (i+1)*n+j
-
-    #a[index, north] = 1
-    a[index, west] = 1
-    a[index, index] = -4
-    a[index, east] = 1
-    a[index, south] = 1
-    print i, j, index
-
-# West/Left (nothing further West)
-print('================')
-print("West")
-
-# First column number
-j = 0
-
-for i in range(1, n-1):
-    north = (i-1)*n+j
-    #west = i*n+j-1
-    index = i*n+j
-    east = i*n+j+1
-    south = (i+1)*n+j
-
-    a[index, north] = 1
-    #a[index, west] = 1
-    a[index, index] = -4
-    a[index, east] = 1
-    a[index, south] = 1
-    print i, j, index
-
-# East/Right (nothing further East)
-print('================')
-print("East")
-
-# Last column number
-j = n - 1
-
-for i in range(1, n-1):
-    north = (i-1)*n+j
-    west = i*n+j-1
-    index = i*n+j
-    #east = i*n+j+1
-    south = (i+1)*n+j
-
-    a[index, north] = 1
-    a[index, west] = 1
-    a[index, index] = -4
-    #a[index, east] = 1
-    a[index, south] = 1
-    print i, j, index
-
-# South / Bottom (nothing further South)
-print('================')
-print("South")
-
-# Last row number
-i = n - 1
-
-for j in range(1, n-1):
-    north = (i-1)*n+j
-    west = i*n+j-1
-    index = i*n+j
-    east = i*n+j+1
-    #south = (i+1)*n+j
-
-    a[index, north] = 1
-    a[index, west] = 1
-    a[index, index] = -4
-    a[index, east] = 1
-    #a[index, south] = 1
-    print i, j, index
-
-print('================')
-print("Corners")
-
-# Top Left
-i = 0
-j = 0
-index = i*n+j
-east = i*n+j+1
-south = (i+1)*n+j
-
-a[index, index] = -4
-a[index, east] = 1
-a[index, south] = 1
-print i, j, index
-
-# Top Right
-i = 0
-j = n - 1
-index = i*n+j
-west = i*n+j-1
-south = (i+1)*n+j
-
-a[index, index] = -4
-a[index, west] = 1
-a[index, south] = 1
-print i, j, index
-
-# Bottom Left
-i = n - 1
-j = 0
-index = i*n+j
-north = (i-1)*n+j
-east = i*n+j+1
-
-a[index, index] = -4
-a[index, north] = 1
-a[index, east] = 1
-print i, j, index
-
-# Bottom Right
-i = n - 1
-j = n - 1
-index = i*n+j
-north = (i-1)*n+j
-west = i*n+j-1
-
-a[index, index] = -4
-a[index, north] = 1
-a[index, west] = 1
-print i, j, index
-
-print('================')
-
 # THIS IS THE FINAL MATRIX
+a = complex_stencil(n)
 print a
 print('================')
 raw_input("Press return to continue")
@@ -248,8 +325,8 @@ raw_input("Press return to continue")
 print("")
 
 print("In 2D with 9 unknowns, solution is:")
-# Could use iterative method from first part of notes
-soln = numpy.linalg.solve(a, b)
+# Use Gauss-Seidel iterative method
+soln = sor(a, b, iterations=50)
 
 print(soln)
 print('================')
