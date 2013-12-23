@@ -91,21 +91,21 @@ def complex_stencil(n):
 
             # Central index will always exist in the matrix
             a[idx, idx] = -60
-            if idx_nn in range(n**2):
-                a[idx, idx_nn] = -1
-            if idx_n in range(n**2):
+            if (idx_nn-j)/n in range(n):
+                a[idx, idx_nn] = 1
+            if (idx_n-j)/n in range(n):
                 a[idx, idx_n] = 16
-            if idx_ss in range(n**2):
-                a[idx, idx_ss] = -1
-            if idx_s in range(n**2):
+            if (idx_ss-j)/n in range(n):
+                a[idx, idx_ss] = 1
+            if (idx_s-j)/n in range(n):
                 a[idx, idx_s] = 16
-            if idx_ee in range(n**2):
-                a[idx, idx_ee] = -1
-            if idx_e in range(n**2):
+            if idx_ee in range(i*n, (i+1)*n):
+                a[idx, idx_ee] = 1
+            if idx_e in range(i*n, (i+1)*n):
                 a[idx, idx_e] = 16
-            if idx_ww in range(n**2):
-                a[idx, idx_ww] = -1
-            if idx_w in range(n**2):
+            if idx_ww in range(i*n, (i+1)*n): 
+                a[idx, idx_ww] = 1
+            if idx_w in range(i*n, (i+1)*n):
                 a[idx, idx_w] = 16
 
     return a
@@ -291,7 +291,6 @@ n_full = n + 2
 # The h value is 1/(n+2) : taking into account the intervals
 # to get to the boundary
 h = 1.0 / n_full
-print("h is %.3f" % h)
 
 # THIS IS THE FINAL MATRIX
 a = complex_stencil(n)
