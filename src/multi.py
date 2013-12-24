@@ -392,9 +392,18 @@ ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
 
 if args.debug:
     print('================')
+if args.verbosity >= 1:
+    print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
 verify(ex1_full, h, 1)
+if args.verbosity >= 1:
+    print("Exercise 2: Solve PDE using SOR solver and simple stencil")
 verify(ex2_full, h, 2)
+if args.verbosity >= 1:
+    print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
 verify(ex3_full, h, 3, complex=True)
+if args.verbosity >= 1:
+    print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
+            "and simple stencil")
 
 if args.debug:
     print('================')
