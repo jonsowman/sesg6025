@@ -308,6 +308,8 @@ parser.add_argument("-p", "--plot", action="store_true", \
         help="Plot the solution")
 parser.add_argument("-n", type=int, help="Size of the grid (nxn), \
         defaults to 3")
+parser.add_argument("-v", "--verbosity", type=int, help="Verbosity level \
+        from 1-3 inclusive")
 args = parser.parse_args()
 
 # Set up printing of the array so it displays nicely
@@ -326,11 +328,19 @@ n_full = n + 2
 h = 1.0 / n_full
 
 # Compute the matrices for simple and complex stencils
+if args.verbosity >= 1:
+    print("Setting up simple stencil"),
 a_simple = simple_stencil(n, args.debug)
+if args.verbosity >= 1:
+    print("...done")
+    print("Setting up complex stencil"),
 a_complex = complex_stencil(n)
+if args.verbosity >= 1:
+    print("...done")
 
-#print("a_complex is:")
-#print(a_complex)
+if args.debug or args.verbosity >= 2:
+    print("a_complex is:")
+    print(a_complex)
 
 # Reset printing options
 numpy.set_printoptions()
@@ -351,13 +361,22 @@ b_complex = numpy.zeros([n**2, 1])
 b_simple[((n**2)-1)/2] = 2*(h**2)
 b_complex[((n**2)-1)/2] = 12*2*(h**2)
 
-# This sets it up by hand as a check
-#b = [[0], [0], [0], [0], [-2*(h**2)], [0], [0], [0], [0]]
-#b = [[0.0], [-0.5], [0.0], [-0.5], [2.0], [-0.5], [0.0], [-0.5], [0.0]]
+if args.verbosity >= 2:
+    print("b_simple is:")
+    print(b_simple)
+    print("b_complex is:")
+    print(b_complex)
 
 # For ex1 we use the np method, for ex2 we use our own SOR method
+if args.verbosity >= 1:
+    print("Solving with numpy"),
 ex1_soln = numpy.linalg.solve(a_simple, b_simple)
+if args.verbosity >= 1:
+    print("...done")
+    print("Solving with Gauss-Seidel"),
 ex2_soln = sor(a_simple, b_simple, iterations=50)
+if args.verbosity >= 1:
+    print("...done")
 
 # Now let's solve the complex stencil problem
 ex3_soln = numpy.linalg.solve(a_complex, b_complex)
