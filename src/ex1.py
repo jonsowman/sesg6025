@@ -4,6 +4,7 @@
 #
 import numpy
 import scipy
+import argparse
 
 def verify(s, h, exno, complex=False):
     """
@@ -130,14 +131,11 @@ def complex_stencil(n):
 
     return a
 
-def simple_stencil(n):
+def simple_stencil(n, debug):
     """
     Use the stencil derived in lectures, the first central difference
     approximation
     """
-
-    # Shall we be quiet?
-    debug = False
 
     # Clear matrix and set it up
     a = numpy.zeros([n**2, n**2])
@@ -301,6 +299,14 @@ def simple_stencil(n):
 
     return a
 
+# Parse the command line options
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--debug", action="store_true", \
+        help="Show debug output from program")
+parser.add_argument("-p", "--plot", action="store_true", \
+        help="Plot the solution")
+args = parser.parse_args()
+
 # Set up printing of the array so it displays nicely
 numpy.set_printoptions(precision=0, linewidth=120)
 
@@ -314,7 +320,7 @@ n_full = n + 2
 h = 1.0 / n_full
 
 # THIS IS THE FINAL MATRIX
-a_simple = simple_stencil(n)
+a_simple = simple_stencil(n, args.debug)
 a_complex = complex_stencil(n)
 
 #print("a_complex is:")
@@ -327,7 +333,8 @@ numpy.set_printoptions(edgeitems=3, infstr='inf', linewidth=75, nanstr='nan',
 
 # Example 3: 2D heat equation in steady state
 # i.e. the Laplace equation with boundary conditions
-print('================')
+if args.debug:
+    print('================')
 b_simple = numpy.zeros([n**2, 1])
 b_complex = numpy.zeros([n**2, 1])
 
@@ -349,21 +356,24 @@ ex2_soln = sor(a_simple, b_simple, iterations=50)
 # Now let's solve the complex stencil problem
 ex3_soln = numpy.linalg.solve(a_complex, b_complex)
 
-raw_input("Press return to continue")
-print("")
+if args.debug:
+    raw_input("Press return to continue")
+    print("")
 
 # Wrap the solution onto grid and embed
 ex1_full = embed(numpy.reshape(ex1_soln, [n, n]), 0)
 ex2_full = embed(numpy.reshape(ex2_soln, [n, n]), 0)
 ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
 
-print('================')
+if args.debug:
+    print('================')
 verify(ex1_full, h, 1)
 verify(ex2_full, h, 2)
 verify(ex3_full, h, 3, complex=True)
 
-print('================')
-print("Plotting...")
+if args.debug:
+    print('================')
+    print("Plotting...")
 
 # 3D plotting part
 from mpl_toolkits.mplot3d import Axes3D
@@ -376,13 +386,14 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 steps = 2.0 + n
-print steps
 
 h = 1.0 / (steps - 1)
-print('h = ', h)
+if args.debug:
+    print('h = ', h)
 X = np.arange(0, steps, 1) * h
-print(X)
-print
+if args.debug:
+    print(X)
+    print
 Y = np.arange(0, steps, 1) * h
 X, Y = np.meshgrid(X, Y)
 
@@ -398,5 +409,6 @@ X, Y = np.meshgrid(X, Y)
 #    linewidth=0, antialiased=False, shade=True)
 surf = ax.plot_wireframe(X, Y, ex3_full, rstride=1, cstride=1)
 
-plt.show()
-raw_input("Press return to continue")
+if args.plot:
+    plt.show()
+    raw_input("Press return to continue")
