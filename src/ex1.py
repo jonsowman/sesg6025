@@ -5,7 +5,7 @@
 import numpy
 import scipy
 
-def verify(s, h, exno):
+def verify(s, h, exno, complex=False):
     """
     Verify that the solution matrix 's' meets the requirement
     that the Laplace equation is equation to 2 at coordinates (0.5, 0.5)
@@ -20,9 +20,13 @@ def verify(s, h, exno):
     c = (size - 1)/2
 
     # Estimate d2u/dx2 + d2u/dy2
-    x = (s[c-1,c] - 2*s[c,c] + s[c+1,c] ) / h**2
-    y = (s[c,c-1] - 2*s[c,c] + s[c,c+1] ) / h**2
-    result = x+y
+    if complex:
+        x = ( 16*s[c-1,c] - 30*s[c,c] + 16*s[c+1,c] ) / (12*(h**2))
+        y = ( 16*s[c,c-1] - 30*s[c,c] + 16*s[c,c+1] ) / (12*(h**2))
+    else:
+        x = (s[c-1,c] - 2*s[c,c] + s[c+1,c] ) / h**2
+        y = (s[c,c-1] - 2*s[c,c] + s[c,c+1] ) / h**2
+    result = x + y
 
     try:
         assert numpy.allclose(result, 2.0, atol=1e-03)
@@ -316,7 +320,6 @@ numpy.set_printoptions(edgeitems=3, infstr='inf', linewidth=75, nanstr='nan',
 # Example 3: 2D heat equation in steady state
 # i.e. the Laplace equation with boundary conditions
 print('================')
-print("Set up b_simple and b_complex")
 b_simple = numpy.zeros([n**2, 1])
 b_complex = numpy.zeros([n**2, 1])
 
@@ -326,9 +329,6 @@ b_complex = numpy.zeros([n**2, 1])
 # For the complex stencil there's a factor of 12 in there too
 b_simple[((n**2)-1)/2] = 2*(h**2)
 b_complex[((n**2)-1)/2] = 12*2*(h**2)
-
-print("b_complex is:")
-print(b_complex)
 
 # This sets it up by hand as a check
 #b = [[0], [0], [0], [0], [-2*(h**2)], [0], [0], [0], [0]]
@@ -341,11 +341,6 @@ ex2_soln = sor(a_simple, b_simple, iterations=50)
 # Now let's solve the complex stencil problem
 ex3_soln = numpy.linalg.solve(a_complex, b_complex)
 
-print("Ex1 solution is:")
-print(ex1_soln)
-print("Ex3 solution is:")
-print(ex3_soln)
-print('================')
 raw_input("Press return to continue")
 print("")
 
@@ -357,7 +352,7 @@ ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
 print('================')
 verify(ex1_full, h, 1)
 verify(ex2_full, h, 2)
-verify(ex3_full, h, 3)
+verify(ex3_full, h, 3, complex=True)
 
 print('================')
 print("Plotting...")
