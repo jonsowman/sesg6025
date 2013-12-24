@@ -300,7 +300,8 @@ def simple_stencil(n, debug):
     return a
 
 # Parse the command line options
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description="SESG6025 Coursework by \
+        Jon Sowman. PDE solver using various methods")
 parser.add_argument("-d", "--debug", action="store_true", \
         help="Show debug output from program")
 parser.add_argument("-p", "--plot", action="store_true", \
