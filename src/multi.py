@@ -12,6 +12,7 @@ def verify(s, h, exno, complex=False):
     that the Laplace equation is equation to 2 at coordinates (0.5, 0.5)
     with discretisation distance 'h'
     """
+    tol = 1e-02
     # We will assume that we have a square matrix
     try:
         assert s.shape[0] == s.shape[1]
@@ -38,19 +39,21 @@ def verify(s, h, exno, complex=False):
     result = x + y
 
     try:
-        assert numpy.allclose(result, 2.0, atol=1e-02)
+        assert numpy.allclose(result, 2.0, atol=tol)
     except AssertionError:
         print('[ERROR Ex'+str(exno)+'] Solution verification failed: ' + \
                 ' %.3f', result)
     else:
         print('[Ex' + str(exno) + '] ' + u'\u2207\u00b2' + \
-                'u = 2 at u = (0.5,0.5) as required')
+                'u = 2 within ' + u'\u00b1' + str(tol) + \
+                ' at u = (0.5,0.5) as required')
 
 
 def sor(A, b, iterations=25, x=None, omega=1.0):
     """
     Solve the linear matrix equation Ax = b via the (successive
-    over relaxation (SOR) iterative method
+    over relaxation (SOR) iterative method. 'omega' is the relaxation
+    parameter, which defaults to 1 (i.e. normal Gauss-Seidel)
     """
     # Create an initial guess
     if x is None:
