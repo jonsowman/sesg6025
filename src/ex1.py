@@ -5,15 +5,17 @@
 import numpy
 import scipy
 
-def verify(s, h):
+def verify(s, h, exno):
     """
     Verify that the solution matrix 's' meets the requirement
     that the Laplace equation is equation to 2 at coordinates (0.5, 0.5)
     with discretisation distance 'h'
     """
     # We will assume that we have a square matrix
-    if not s.shape[0] == s.shape[1]:
-        raise AssertionError("Solution matrix is not square")
+    try:
+        assert s.shape[0] == s.shape[1]
+    except AssertionError:
+       print("Solution matrix is not square")
     size = s.shape[0]
     c = (size - 1)/2
 
@@ -22,8 +24,14 @@ def verify(s, h):
     y = (s[c,c-1] - 2*s[c,c] + s[c,c+1] ) / h**2
     result = x+y
 
-    assert numpy.allclose(result, 2.0, atol=1e-08)
-    print('[Ex1] ' + u'\u2207\u00b2' + 'u = 2 at u = (0.5,0.5) as required')
+    try:
+        assert numpy.allclose(result, 2.0, atol=1e-03)
+    except AssertionError:
+        print('[ERROR Ex'+str(exno)+'] Solution verification failed: ' + \
+                ' %.3f', result)
+    else:
+        print('[Ex' + str(exno) + '] ' + u'\u2207\u00b2' + \
+                'u = 2 at u = (0.5,0.5) as required')
 
 
 def sor(A, b, iterations=25, x=None, omega=1.0):
@@ -92,19 +100,19 @@ def complex_stencil(n):
             # Central index will always exist in the matrix
             a[idx, idx] = -60
             if (idx_nn-j)/n in range(n):
-                a[idx, idx_nn] = 1
+                a[idx, idx_nn] = -1
             if (idx_n-j)/n in range(n):
                 a[idx, idx_n] = 16
             if (idx_ss-j)/n in range(n):
-                a[idx, idx_ss] = 1
+                a[idx, idx_ss] = -1
             if (idx_s-j)/n in range(n):
                 a[idx, idx_s] = 16
             if idx_ee in range(i*n, (i+1)*n):
-                a[idx, idx_ee] = 1
+                a[idx, idx_ee] = -1
             if idx_e in range(i*n, (i+1)*n):
                 a[idx, idx_e] = 16
             if idx_ww in range(i*n, (i+1)*n): 
-                a[idx, idx_ww] = 1
+                a[idx, idx_ww] = -1
             if idx_w in range(i*n, (i+1)*n):
                 a[idx, idx_w] = 16
 
@@ -115,11 +123,16 @@ def simple_stencil(n):
     Use the stencil derived in lectures, the first central difference
     approximation
     """
+
+    # Shall we be quiet?
+    debug = False
+
     # Clear matrix and set it up
     a = numpy.zeros([n**2, n**2])
 
-    print('================')
-    print('Interior')
+    if(debug):
+        print('================')
+        print('Interior')
 
     # Build full matrix
     # Interior
@@ -136,14 +149,14 @@ def simple_stencil(n):
             a[index, index] = -4
             a[index, east] = 1
             a[index, south] = 1
-            print i, j, index
 
-    print(a)
+    if debug:
+        print(a)
 
-    # Edges
-    # North/Top (nothing further North)
-    print('================')
-    print("Top")
+        # Edges
+        # North/Top (nothing further North)
+        print('================')
+        print("Top")
 
     # First row number
     i = 0
@@ -162,11 +175,11 @@ def simple_stencil(n):
         a[index, index] = -4
         a[index, east] = 1
         a[index, south] = 1
-        print i, j, index
 
     # West/Left (nothing further West)
-    print('================')
-    print("West")
+    if debug:
+        print('================')
+        print("West")
 
     # First column number
     j = 0
@@ -183,11 +196,11 @@ def simple_stencil(n):
         a[index, index] = -4
         a[index, east] = 1
         a[index, south] = 1
-        print i, j, index
 
     # East/Right (nothing further East)
-    print('================')
-    print("East")
+    if debug:
+        print('================')
+        print("East")
 
     # Last column number
     j = n - 1
@@ -204,11 +217,11 @@ def simple_stencil(n):
         a[index, index] = -4
         #a[index, east] = 1
         a[index, south] = 1
-        print i, j, index
 
     # South / Bottom (nothing further South)
-    print('================')
-    print("South")
+    if debug:
+        print('================')
+        print("South")
 
     # Last row number
     i = n - 1
@@ -225,10 +238,10 @@ def simple_stencil(n):
         a[index, index] = -4
         a[index, east] = 1
         #a[index, south] = 1
-        print i, j, index
 
-    print('================')
-    print("Corners")
+    if debug:
+        print('================')
+        print("Corners")
 
     # Top Left
     i = 0
@@ -240,7 +253,6 @@ def simple_stencil(n):
     a[index, index] = -4
     a[index, east] = 1
     a[index, south] = 1
-    print i, j, index
 
     # Top Right
     i = 0
@@ -252,7 +264,6 @@ def simple_stencil(n):
     a[index, index] = -4
     a[index, west] = 1
     a[index, south] = 1
-    print i, j, index
 
     # Bottom Left
     i = n - 1
@@ -264,7 +275,6 @@ def simple_stencil(n):
     a[index, index] = -4
     a[index, north] = 1
     a[index, east] = 1
-    print i, j, index
 
     # Bottom Right
     i = n - 1
@@ -276,7 +286,6 @@ def simple_stencil(n):
     a[index, index] = -4
     a[index, north] = 1
     a[index, west] = 1
-    print i, j, index
 
     return a
 
@@ -293,11 +302,11 @@ n_full = n + 2
 h = 1.0 / n_full
 
 # THIS IS THE FINAL MATRIX
-a = complex_stencil(n)
-print a
-print('================')
-raw_input("Press return to continue")
-print("")
+a_simple = simple_stencil(n)
+a_complex = complex_stencil(n)
+
+print("a_complex is:")
+print(a_complex)
 
 # Reset printing options
 numpy.set_printoptions()
@@ -307,38 +316,48 @@ numpy.set_printoptions(edgeitems=3, infstr='inf', linewidth=75, nanstr='nan',
 # Example 3: 2D heat equation in steady state
 # i.e. the Laplace equation with boundary conditions
 print('================')
-print("Set up b")
-b = numpy.zeros([n**2, 1])
+print("Set up b_simple and b_complex")
+b_simple = numpy.zeros([n**2, 1])
+b_complex = numpy.zeros([n**2, 1])
 
 # For rho(0.5, 0.5) = 2 we just require that the middle element of b
 # is -2*(h**2), as per equation 4.51
-b[((n**2)-1)/2] = 2*(h**2)
+#
+# For the complex stencil there's a factor of 12 in there too
+b_simple[((n**2)-1)/2] = 2*(h**2)
+b_complex[((n**2)-1)/2] = 12*2*(h**2)
+
+print("b_complex is:")
+print(b_complex)
 
 # This sets it up by hand as a check
 #b = [[0], [0], [0], [0], [-2*(h**2)], [0], [0], [0], [0]]
 #b = [[0.0], [-0.5], [0.0], [-0.5], [2.0], [-0.5], [0.0], [-0.5], [0.0]]
 
-print(b)
-print('================')
-raw_input("Press return to continue")
-print("")
+# For ex1 we use the np method, for ex2 we use our own SOR method
+ex1_soln = numpy.linalg.solve(a_simple, b_simple)
+ex2_soln = sor(a_simple, b_simple, iterations=50)
 
-print("In 2D with 9 unknowns, solution is:")
-# Use Gauss-Seidel iterative method
-soln = sor(a, b, iterations=50)
+# Now let's solve the complex stencil problem
+ex3_soln = numpy.linalg.solve(a_complex, b_complex)
 
-print(soln)
+print("Ex1 solution is:")
+print(ex1_soln)
+print("Ex3 solution is:")
+print(ex3_soln)
 print('================')
 raw_input("Press return to continue")
 print("")
 
 # Wrap the solution onto grid and embed
-soln_wrap = numpy.reshape(soln, [n, n])
-soln_full = embed(soln_wrap, 100)
-print soln_full
+ex1_full = embed(numpy.reshape(ex1_soln, [n, n]), 0)
+ex2_full = embed(numpy.reshape(ex2_soln, [n, n]), 0)
+ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
 
 print('================')
-verify(soln_full, h)
+verify(ex1_full, h, 1)
+verify(ex2_full, h, 2)
+verify(ex3_full, h, 3)
 
 print('================')
 print("Plotting...")
@@ -364,17 +383,17 @@ print
 Y = np.arange(0, steps, 1) * h
 X, Y = np.meshgrid(X, Y)
 
-print("X is: ")
-print(X)
+#print("X is: ")
+#print(X)
 
-print("Y is: ")
-print(Y)
+#print("Y is: ")
+#print(Y)
 
 #R = np.sqrt(X**2 + Y**2)
 #surf = ax.plot_wireframe(X, Y, R, rstride=1, cstride=1)
 #surf = ax.plot_wireframe(X, Y, R, rstride=1, cstride=1, cmap=cm.coolwarm, 
 #    linewidth=0, antialiased=False, shade=True)
-surf = ax.plot_wireframe(X, Y, soln_full, rstride=1, cstride=1)
+surf = ax.plot_wireframe(X, Y, ex3_full, rstride=1, cstride=1)
 
 plt.show()
 raw_input("Press return to continue")
