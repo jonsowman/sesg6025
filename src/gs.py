@@ -19,12 +19,12 @@ def redblack(A, b, iterations=25, x=None):
     # quit early if so
     for its in range(iterations):
         for sweep in ('red', 'black'):
-            print("sweeping %s" % sweep)
+            if its == 0 print("sweeping %s" % sweep)
             for i in range(n):
                 start = i % 2 if sweep == 'red' else 1 - i % 2
                 t = 0
                 for j in range(start, n, 2):
-                    print("i=%d, j=%d" % (i, j))
+                    if its == 0 print("i=%d, j=%d" % (i, j))
                     if i == j:
                         continue
                     t = t + A[i, j] * x[j]
