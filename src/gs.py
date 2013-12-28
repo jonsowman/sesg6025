@@ -19,16 +19,41 @@ def redblack(A, b, iterations=25, x=None):
     # quit early if so
     for its in range(iterations):
         for sweep in ('red', 'black'):
-            if its == 0 print("sweeping %s" % sweep)
+            if its == 0: print("sweeping %s" % sweep)
             for i in range(n):
                 start = i % 2 if sweep == 'red' else 1 - i % 2
                 t = 0
                 for j in range(start, n, 2):
-                    if its == 0 print("i=%d, j=%d" % (i, j))
+                    if its == 0: print("i=%d, j=%d" % (i, j))
                     if i == j:
                         continue
                     t = t + A[i, j] * x[j]
                 x[i] = 1/A[i, i] * (b[i] - t)
+
+    return x
+
+def gaussseidel(A, b, iterations=25, x=None):
+    """
+    Solve the linear matrix equation Ax = b via the Gauss Seidel 
+    iterative method
+    """
+    # Get the number of elements in x
+    n = len(A[0])
+    
+    # Create an initial guess
+    if x is None:
+        x = np.zeros(n)
+
+    # Iterate 'iterations' times, should really check for convergence and 
+    # quit early if so
+    for its in range(iterations):
+        for i in range(n):
+            t = 0
+            for j in range(n):
+                if i == j:
+                    continue
+                t = t + A[i, j] * x[j]
+            x[i] = 1/A[i, i] * (b[i] - t)
 
     return x
 
@@ -67,7 +92,9 @@ b = np.array([7.0, -21.0, 15.0])
 guess = np.array([1.0, 2.0, 3.0])
 
 # Solve
-rbsol = redblack(A, b, iterations=75, x=guess)
+sol = gaussseidel(A, b, iterations=25, x=guess)
+rbsol = redblack(A, b, iterations=25, x=guess)
+print("Normal solution is:")
+pprint(sol)
 print("Red-Black solution is:")
 pprint(rbsol)
-assert np.allclose(rbsol, np.array([2.0, 4.0, 3.0]), atol = 1e-08)
