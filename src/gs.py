@@ -24,9 +24,9 @@ def gaussseidel(A, b, iterations=25, x=None):
     for its in range(iterations):
         for i in range(n):
             t = 0
-            for j in range(i):
-                t = t + A[i, j] * x[j]
-            for j in range(i+1, n):
+            for j in range(n):
+                if i == j:
+                    continue
                 t = t + A[i, j] * x[j]
             x[i] = 1/A[i, i] * (b[i] - t)
     return x
