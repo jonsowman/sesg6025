@@ -23,13 +23,12 @@ def gaussseidel(A, b, iterations=25, x=None):
     # Iterate 'iterations' times
     for its in range(iterations):
         for i in range(n):
-            t1 = 0
-            t2 = 0
+            t = 0
             for j in range(i):
-                t1 = t1 + A[i, j] * x[j]
+                t = t + A[i, j] * x[j]
             for j in range(i+1, n):
-                t2 = t2 + A[i, j] * x[j]
-            x[i] = 1/A[i, i] * (b[i] - t1 - t2)
+                t = t + A[i, j] * x[j]
+            x[i] = 1/A[i, i] * (b[i] - t)
     return x
 
 def sor(A, b, iterations=25, x=None, omega=1.0):
