@@ -565,8 +565,7 @@ X, Y = np.meshgrid(X, Y)
 #surf = ax.plot_wireframe(X, Y, R, rstride=1, cstride=1)
 #surf = ax.plot_wireframe(X, Y, R, rstride=1, cstride=1, cmap=cm.coolwarm, 
 #    linewidth=0, antialiased=False, shade=True)
-surf = ax.plot_wireframe(X, Y, ex3_full, rstride=1, cstride=1)
+surf = ax.plot_wireframe(X, Y, ex4_full, rstride=1, cstride=1)
 
 if args.plot:
     plt.show()
-    raw_input("Press return to continue")
