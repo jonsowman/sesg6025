@@ -337,9 +337,15 @@ a_simple = simple_stencil(n, args.debug)
 if args.verbosity >= 1:
     print("...done")
     print("Setting up complex stencil"),
+    if args.verbosity >= 2:
+        print("Simple stencil is")
+        print(a_simple)
 a_complex = complex_stencil(n)
 if args.verbosity >= 1:
     print("...done")
+    if args.verbosity >= 2:
+        print("Complex stencil is")
+        print(a_complex)
 
 if args.debug or args.verbosity >= 2:
     print("a_complex is:")
@@ -377,6 +383,9 @@ ex1_soln = numpy.linalg.solve(a_simple, b_simple)
 if args.verbosity >= 1:
     print("...done")
     print("Solving with Gauss-Seidel"),
+    if args.verbosity >= 2:
+        print("Solution is:")
+        print(ex1_soln)
 ex2_soln = sor(a_simple, b_simple, iterations=50)
 if args.verbosity >= 1:
     print("...done")
