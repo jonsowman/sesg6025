@@ -89,18 +89,6 @@ def embed(a, value):
         for j in range(1, size+1):
             a_tmp[i, j] = a[i-1, j-1]
 
-    #for i in range(0, size+2):
-    #    a_tmp[0, i] = value
-    return a_tmp
-
-def embed_rb(a):
-    """
-    Embed a into an array with 0 boundary conditions, where a is a
-    Red-Black solution vector
-    """
-    n = a.shape[0]
-    a_tmp = numpy.zeros([size+2, size+2])
-
     return a_tmp
 
 def rbidx(i, j, n):
@@ -151,7 +139,12 @@ def redblack(A, b, x=None, iterations=25):
     for i in range(iterations):
         x = rbstep(A, b, x)
 
-    return x
+    # Reorder the solution vector
+    c = x.size/2
+    sol = numpy.empty(x.size, dtype=x.dtype)
+    sol[0::2] = x[0:c+1]
+    sol[1::2] = x[c+1:len(x)]
+    return sol
 
 def rbstep(A, b, x):
     """
@@ -507,6 +500,7 @@ if args.verbosity >= 1:
 if args.verbosity >= 1:
     print("Solving simple stencil in Red-Black formulation"),
 ex4_soln = redblack(a_redblack, b_redblack, iterations=25)
+print(ex4_soln)
 if args.verbosity >= 1:
     print("...done")
 
@@ -517,9 +511,7 @@ if args.debug:
 # Wrap the solution onto grid and embed
 ex1_full = embed(numpy.reshape(ex1_soln, [n, n]), 0)
 ex2_full = embed(numpy.reshape(ex2_soln, [n, n]), 0)
-print(ex3_soln)
 ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
-print(ex4_soln)
 ex4_full = embed(numpy.reshape(ex4_soln, [n, n]), 0)
 
 if args.debug:
