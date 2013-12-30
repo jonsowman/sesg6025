@@ -3,23 +3,40 @@
 from pprint import pprint
 import numpy as np
 
+def rbidx(i, j, n):
+    """
+    Calculate the idx value for a red-black node at grid coordinates (i, j) 
+    given that top left is always red.
+    """
+    idx = (i*n+j+1)/2 + (n**2)/2 if (i+j)%2 else (i*n+j)/2
+    return idx
+
 def rbstencil(n):
     """
     Construct a stencil for the red-black ordering of the adjacency matrix
-    of size n^2
+    of size n^2.
     """
-
     A = -4 * np.eye(n**2)
 
     for i in range(n):
         for j in range(n):
-            if (i+j) % 2:
-                # This is a black node
-                idx = ((i*n+j) - 1)/2 + (n**2)/2 + 1
-            else:
-                # This is a red node
-                idx = (i*n+j) / 2
-            print("(%d, %d) is index %d" % (i, j, idx))
+            # Find the idx of this node
+            idx = rbidx(i, j, n)
+            # Neighbours are black (racist!)
+            north = rbidx(i-1, j, n)
+            south = rbidx(i+1, j, n)
+            east = rbidx(i, j+1, n)
+            west = rbidx(i, j-1, n)
+
+            # Write to the stencil as long as the node exists
+            if i > 0:
+                A[idx, north] = 1
+            if i < n - 1:
+                A[idx, south] = 1
+            if j > 0:
+                A[idx, west] = 1
+            if j < n - 1:
+                A[idx, east] = 1
 
     return A
 
@@ -120,13 +137,13 @@ def gsstep(A, b, x):
 #b = np.array([7.0, -21.0, 15.0])
 #guess = np.array([1.0, 2.0, 3.0])
 
-A_rep = 'np.array([[-4., -0., -0., -0., -0.,  1.,  1., -0., -0.],\n       [-0., \
--4., -0., -0., -0.,  1.,  0.,  1., -0.],\n       [-0., -0., -4., -0., -0.,  1.,\
-1.,  1.,  1.],\n       [-0., -0., -0., -4., -0., -0.,  1., -0.,  1.],\n\
-[-0., -0., -0., -0., -4., -0., -0.,  1.,  1.],\n       [ 1.,  1.,  1., -0.,\
--0., -4., -0., -0., -0.],\n       [ 1., -0.,  1.,  1., -0., -0., -4., -0.,\
--0.],\n       [-0.,  1.,  1., -0.,  1., -0., -0., -4., -0.],\n       [-0., \
--0., 1.,  1.,  1., -0., -0., -0., -4.]])'
+#A_rep = 'np.array([[-4., -0., -0., -0., -0.,  1.,  1., -0., -0.],\n       [-0., \
+#-4., -0., -0., -0.,  1.,  0.,  1., -0.],\n       [-0., -0., -4., -0., -0.,  1.,\
+#1.,  1.,  1.],\n       [-0., -0., -0., -4., -0., -0.,  1., -0.,  1.],\n\
+#[-0., -0., -0., -0., -4., -0., -0.,  1.,  1.],\n       [ 1.,  1.,  1., -0.,\
+#-0., -4., -0., -0., -0.],\n       [ 1., -0.,  1.,  1., -0., -0., -4., -0.,\
+#-0.],\n       [-0.,  1.,  1., -0.,  1., -0., -0., -4., -0.],\n       [-0., \
+#-0., 1.,  1.,  1., -0., -0., -0., -4.]])'
 b_rep = 'np.array([ 0.  ,  0.  ,  0.08,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.\
 ])'
 
@@ -135,12 +152,10 @@ b_rep = 'np.array([ 0.  ,  0.  ,  0.08,  0.  ,  0.  ,  0.  ,  0.  ,  0.  ,  0.\
 #[-0.,-0., -0., -0., -4.]])'
 #b_rep = 'np.array([ 0.  ,  0.  ,  0.08,  0.  ,  0.  ])'
 
-A = eval(A_rep)
+A = rbstencil(3)
 b = eval(b_rep)
 x = np.zeros(len(A[0]))
 #x = np.array([-0.   , -0.   , -0.02 , -0.   , -0.   , -0.005, -0.005, -0.005, -0.005])
-
-rbstencil(3)
 
 # Solve
 x = redblack(A, b, iterations=25)
