@@ -111,7 +111,7 @@ A = eval(A_rep)
 b = eval(b_rep)
 
 # Solve
-sol = gaussseidel(A, b, iterations=1)
+sol = gaussseidel(A, b, iterations=2)
 print("Normal solution is:")
 pprint(sol)
 
