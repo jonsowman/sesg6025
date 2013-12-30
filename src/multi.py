@@ -500,7 +500,6 @@ if args.verbosity >= 1:
 if args.verbosity >= 1:
     print("Solving simple stencil in Red-Black formulation"),
 ex4_soln = redblack(a_redblack, b_redblack, iterations=25)
-print(ex4_soln)
 if args.verbosity >= 1:
     print("...done")
 
