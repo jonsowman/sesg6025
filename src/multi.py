@@ -93,6 +93,100 @@ def embed(a, value):
     #    a_tmp[0, i] = value
     return a_tmp
 
+def embed_rb(a):
+    """
+    Embed a into an array with 0 boundary conditions, where a is a
+    Red-Black solution vector
+    """
+    n = a.shape[0]
+    a_tmp = numpy.zeros([size+2, size+2])
+
+    return a_tmp
+
+def rbidx(i, j, n):
+    """
+    Calculate the idx value for a red-black node at grid coordinates (i, j) 
+    given that top left is always red.
+    """
+    idx = (i*n+j+1)/2 + (n**2)/2 if (i+j)%2 else (i*n+j)/2
+    return idx
+
+def rbstencil(n):
+    """
+    Construct a stencil for the red-black ordering of the adjacency matrix
+    of size n^2.
+    """
+    A = -4 * numpy.eye(n**2)
+
+    for i in range(n):
+        for j in range(n):
+            # Find the idx of this node
+            idx = rbidx(i, j, n)
+            # Neighbours are black (racist!)
+            north = rbidx(i-1, j, n)
+            south = rbidx(i+1, j, n)
+            east = rbidx(i, j+1, n)
+            west = rbidx(i, j-1, n)
+
+            # Write to the stencil as long as the node exists
+            if i > 0:
+                A[idx, north] = 1
+            if i < n - 1:
+                A[idx, south] = 1
+            if j > 0:
+                A[idx, west] = 1
+            if j < n - 1:
+                A[idx, east] = 1
+
+    return A
+
+def redblack(A, b, x=None, iterations=25):
+    """
+    Run a full red-black solution using the Gauss-Seidel method, i.e.
+    solving black using the previously computed red solution vector
+    """
+    if x is None:
+        x = numpy.zeros(len(A[0]))
+
+    for i in range(iterations):
+        x = rbstep(A, b, x)
+
+    return x
+
+def rbstep(A, b, x):
+    """
+    Run one iteration of the Red-Black Gauss-Seidel solver. This is
+    not run in a parallel manner but could be if required.
+    Note that the solution is completely parallel within the red
+    solving, and ditto for the black. 
+    """
+
+    n = len(A[0])
+    c = n/2 + 1
+
+    # Set up the matrices for red-black solving
+    Dr = A[0:c, 0:c]
+    Db = A[c:n, c:n]
+    E = A[c:n, 0:c]
+    F = E.transpose()
+
+    # Split b into red and black parts
+    br = b[0:c]
+    bb = b[c:len(b)]
+
+    # Split the existing solution into red and black parts
+    xr = x[0:c]
+    xb = x[c:len(x)]
+
+    # Solve red
+    xr = numpy.linalg.inv(Dr).dot(br - F.dot(xb))
+
+    # Solve for black using the red x-values we just calculated
+    xb = numpy.linalg.inv(Db).dot(bb - E.dot(xr))
+
+    # Concatenate the solution vectors xr and xb and return
+    return numpy.concatenate([xr, xb])
+
 def complex_stencil(n):
     """
     Use the more complex 8 point stencil described in the coursework handout
@@ -336,10 +430,12 @@ if args.verbosity >= 1:
 a_simple = simple_stencil(n, args.debug)
 if args.verbosity >= 1:
     print("...done")
-    print("Setting up complex stencil"),
     if args.verbosity >= 2:
         print("Simple stencil is")
         print(a_simple)
+
+if args.verbosity >= 1:
+    print("Setting up complex stencil"),
 a_complex = complex_stencil(n)
 if args.verbosity >= 1:
     print("...done")
@@ -347,9 +443,14 @@ if args.verbosity >= 1:
         print("Complex stencil is")
         print(a_complex)
 
-if args.debug or args.verbosity >= 2:
-    print("a_complex is:")
-    print(a_complex)
+if args.verbosity >= 1:
+    print("Setting up red-black stencil"),
+a_redblack = rbstencil(n)
+if args.verbosity >= 1:
+    print("...done")
+    if args.verbosity >= 2:
+        print("Red-black stencil is")
+        print(a_redblack)
 
 # Reset printing options
 numpy.set_printoptions()
@@ -362,19 +463,24 @@ if args.debug:
     print('================')
 b_simple = numpy.zeros([n**2, 1])
 b_complex = numpy.zeros([n**2, 1])
+b_redblack = numpy.zeros([n**2])
 
 # For rho(0.5, 0.5) = 2 we just require that the middle element of b
-# is -2*(h**2), as per equation 4.51
-#
+# is -2*(h**2), as per equation 4.51 for the simple stencil.
 # For the complex stencil there's a factor of 12 in there too
+# For the red-black solver, the linear system of equations is in a different
+# order
 b_simple[((n**2)-1)/2] = 2*(h**2)
 b_complex[((n**2)-1)/2] = 12*2*(h**2)
+b_redblack[(n**2)/4] = 2*(h**2)
 
 if args.verbosity >= 2:
     print("b_simple is:")
     print(b_simple)
     print("b_complex is:")
     print(b_complex)
+    print("b_redblack is:")
+    print(b_redblack)
 
 # For ex1 we use the np method, for ex2 we use our own SOR method
 if args.verbosity >= 1:
@@ -391,7 +497,18 @@ if args.verbosity >= 1:
     print("...done")
 
 # Now let's solve the complex stencil problem
+if args.verbosity >= 1:
+    print("Solving complex stencil using numpy"),
 ex3_soln = numpy.linalg.solve(a_complex, b_complex)
+if args.verbosity >= 1:
+    print("...done")
+
+# Finally, solve the red-black problem
+if args.verbosity >= 1:
+    print("Solving simple stencil in Red-Black formulation"),
+ex4_soln = redblack(a_redblack, b_redblack, iterations=25)
+if args.verbosity >= 1:
+    print("...done")
 
 if args.debug:
     raw_input("Press return to continue")
@@ -400,7 +517,10 @@ if args.debug:
 # Wrap the solution onto grid and embed
 ex1_full = embed(numpy.reshape(ex1_soln, [n, n]), 0)
 ex2_full = embed(numpy.reshape(ex2_soln, [n, n]), 0)
+print(ex3_soln)
 ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
+print(ex4_soln)
+ex4_full = embed(numpy.reshape(ex4_soln, [n, n]), 0)
 
 if args.debug:
     print('================')
@@ -416,6 +536,7 @@ verify(ex3_full, h, 3, complex=True)
 if args.verbosity >= 1:
     print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
             "and simple stencil")
+verify(ex4_full, h, 4)
 
 if args.debug:
     print('================')
