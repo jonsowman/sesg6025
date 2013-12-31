@@ -396,8 +396,6 @@ def simple_stencil(n, debug):
 
     return a
 
-
-
 def run_exercises(n):
     # The h value is 1/(n+2) : taking into account the intervals
     # to get to the boundary
@@ -467,13 +465,16 @@ def run_exercises(n):
     ex1_soln = numpy.linalg.solve(a_simple, b_simple)
     if args.verbosity >= 1:
         print("...done")
-        print("Solving with Gauss-Seidel"),
         if args.verbosity >= 2:
             print("Solution is:")
             print(ex1_soln)
+        print("Solving with Gauss-Seidel"),
     ex2_soln = sor(a_simple, b_simple, iterations=50)
     if args.verbosity >= 1:
         print("...done")
+        if args.verbosity >= 2:
+            print("Solution is:")
+            print(ex2_soln)
 
     # Now let's solve the complex stencil problem
     if args.verbosity >= 1:
@@ -481,6 +482,9 @@ def run_exercises(n):
     ex3_soln = numpy.linalg.solve(a_complex, b_complex)
     if args.verbosity >= 1:
         print("...done")
+        if args.verbosity >= 2:
+            print("Solution is:")
+            print(ex3_soln)
 
     # Finally, solve the red-black problem
     if args.verbosity >= 1:
@@ -488,6 +492,9 @@ def run_exercises(n):
     ex4_soln = redblack(a_redblack, b_redblack, iterations=25)
     if args.verbosity >= 1:
         print("...done")
+        if args.verbosity >= 2:
+            print("Solution is:")
+            print(ex4_soln)
 
     if args.debug:
         raw_input("Press return to continue")
