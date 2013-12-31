@@ -401,6 +401,9 @@ def run_exercises(n):
     # to get to the boundary
     h = 1.0 / n_full
 
+    # Determine number of iterations to run for the GS iterative methods
+    its = args.iterations if args.iterations else 100
+
     # Compute the matrices for simple and complex stencils
     if args.verbosity >= 1:
         print("Setting up simple stencil"),
@@ -469,7 +472,7 @@ def run_exercises(n):
             print("Solution is:")
             print(ex1_soln)
         print("Solving with Gauss-Seidel"),
-    ex2_soln = sor(a_simple, b_simple, iterations=50)
+    ex2_soln = sor(a_simple, b_simple, iterations=its)
     if args.verbosity >= 1:
         print("...done")
         if args.verbosity >= 2:
@@ -489,7 +492,7 @@ def run_exercises(n):
     # Finally, solve the red-black problem
     if args.verbosity >= 1:
         print("Solving simple stencil in Red-Black formulation"),
-    ex4_soln = redblack(a_redblack, b_redblack, iterations=25)
+    ex4_soln = redblack(a_redblack, b_redblack, iterations=its)
     if args.verbosity >= 1:
         print("...done")
         if args.verbosity >= 2:
@@ -559,6 +562,9 @@ if __name__ == '__main__':
             defaults to 3")
     parser.add_argument("-v", "--verbosity", type=int, help="Verbosity level \
             from 1-3 inclusive")
+    parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
+            Seidel and Red-Black solvers, how many iterations to run \
+            (defaults to 100)")
     args = parser.parse_args()
 
     if args.verbosity >= 1:
