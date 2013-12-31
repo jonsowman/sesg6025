@@ -48,7 +48,6 @@ def verify(s, h, exno, complex=False):
                 'u = 2 within ' + u'\u00b1' + str(tol) + \
                 ' at u = (0.5,0.5) as required')
 
-
 def sor(A, b, iterations=25, x=None, omega=1.0):
     """
     Solve the linear matrix equation Ax = b via the (successive
@@ -179,10 +178,10 @@ def rbstep(A, b, x):
     xb = x[c:len(x)]
 
     # Solve red
-    xr = numpy.linalg.inv(Dr).dot(br - F.dot(xb))
+    xr = numpy.linalg.solve(Dr, br - F.dot(xb))
 
     # Solve for black using the red x-values we just calculated
-    xb = numpy.linalg.inv(Db).dot(bb - E.dot(xr))
+    xb = numpy.linalg.solve(Db, bb - E.dot(xr))
 
     # Concatenate the solution vectors xr and xb and return
     return numpy.concatenate([xr, xb])
