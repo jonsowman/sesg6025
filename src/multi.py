@@ -79,7 +79,7 @@ def sor(A, b, iterations=25, x=None, omega=1.0):
             x[i] = omega/A[i, i] * (b[i] - t1 - t2) + (1.0-omega)*x[i]
     return x
 
-def embed(a, value):
+def embed(a):
     # Embed matrix into an array with the boundary conditions in
     # a is the matrix and value is the value on the (fixed) boundary
     size = a.shape[0]
@@ -102,7 +102,9 @@ def rbidx(i, j, n):
 def rbstencil(n):
     """
     Construct a stencil for the red-black ordering of the adjacency matrix
-    of size n^2.
+    of size n^2. This Red-Black ordering is used instead of the natural
+    ordering such that parallelism may be exploited.
+    The top left node is always red in this implementation.
     """
     # Construct the diagonal which is -4 on each element
     A = -4 * numpy.eye(n**2)
@@ -492,10 +494,10 @@ def run_exercises(n):
         print("")
 
     # Wrap the solution onto grid and embed
-    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]), 0)
-    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]), 0)
-    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]), 0)
-    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]), 0)
+    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
+    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
+    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
+    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
 
     if args.debug:
         print('================')
