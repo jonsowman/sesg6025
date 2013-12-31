@@ -8,9 +8,10 @@ import argparse
 
 def verify(s, h, exno, complex=False):
     """
-    Verify that the solution matrix 's' meets the requirement
-    that the Laplacian is equal to 2 at coordinates (0.5, 0.5)
-    with discretisation distance 'h'
+    Verify that the solution matrix 's' meets the requirement that the
+    Laplacian is equal to 2 at coordinates (0.5, 0.5) with discretisation
+    distance 'h'. Additionally takes the exercise number for printing reasons,
+    and whether we're using the complex stencil or otherwise.
     """
     tol = 1e-03
     # We will assume that we have a square matrix
@@ -79,8 +80,10 @@ def sor(A, b, iterations=25, x=None, omega=1.0):
     return x
 
 def embed(a):
-    # Embed matrix into an array with the boundary conditions in
-    # a is the matrix and value is the value on the (fixed) boundary
+    """
+    Embed solution matrix into a matrix with the boundary conditions.
+    a is the matrix and value is the value on the (fixed) boundary
+    """
     size = a.shape[0]
     a_tmp = numpy.zeros([size+2, size+2])
 
@@ -110,9 +113,9 @@ def rbstencil(n):
 
     for i in range(n):
         for j in range(n):
-            # Find the idx of this node
+            # Find the index of this node
             idx = rbidx(i, j, n)
-            # Neighbours are black (racist!)
+            # If this node is red, neighbours are black & vice versa
             north = rbidx(i-1, j, n)
             south = rbidx(i+1, j, n)
             east = rbidx(i, j+1, n)
@@ -127,7 +130,6 @@ def rbstencil(n):
                 A[idx, west] = 1
             if j < n - 1:
                 A[idx, east] = 1
-
     return A
 
 def redblack(A, b, x=None, iterations=25):
@@ -498,11 +500,8 @@ def run_exercises(n):
             print("Solution is:")
             print(ex4_soln)
 
-    if args.verbosity >= 2:
-        raw_input("Press return to continue")
-        print("")
-
-    # Wrap the solution onto grid and embed
+    # Wrap the solution onto grid and embed into a solution matrix
+    # containing boundary conditions
     ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
     ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
     ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
@@ -584,9 +583,6 @@ if __name__ == '__main__':
     # Set up printing of the array so it displays nicely
     numpy.set_printoptions(precision=0, linewidth=120)
 
-    # n is the size of the mesh with the unknowns in it
-    # So the matrix will be of size n+2
-
     # Choose and set n to a default value to begin with
     n_default = 3
     n = n_default
@@ -595,8 +591,8 @@ if __name__ == '__main__':
     # assignment to n
     if args.n:
         if args.n < 3:
-            print("n must be at least 3, supplied %d, defaulting to n=%d" % (n,
-                n_default))
+            print("n must be at least 3, supplied %d, defaulting to n=%d" % 
+                    (args.n, n_default))
         elif (args.n % 2) == 0:
             print("n must be an odd number, supplied %d, defaulting to n=%d" %
                     (args.n, n_default))
@@ -604,7 +600,7 @@ if __name__ == '__main__':
             n = args.n
     n_full = n + 2
 
-    # Now run the exercises
+    # Now run the exercises using an NxN grid
     solns = run_exercises(n)
 
     # Plot the solution if required
