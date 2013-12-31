@@ -570,7 +570,7 @@ if __name__ == '__main__':
             help="Plot the solution to given exercise")
     parser.add_argument("-n", type=int, help="Size of the grid (nxn), \
             defaults to 3")
-    parser.add_argument("-v", "--verbosity", type=int, help="Verbosity level \
+    parser.add_argument("-v", "--verbosity", action='count', help="Verbosity level \
             from 1-3 inclusive")
     parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
             Seidel and Red-Black solvers, how many iterations to run \
