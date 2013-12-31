@@ -555,7 +555,18 @@ def plot(solution):
 if __name__ == '__main__':
     # Parse the command line options
     parser = argparse.ArgumentParser(description="SESG6025 Coursework by \
-            Jon Sowman. PDE solver using various methods")
+            Jon Sowman. PDE solver using various methods.\n\nWe attempt to \
+            solve the equation " + u'\u2207\u00b2' + "u = " + u'\u03c1' + ", \
+            using the \
+            following methods: [Ex1] Numpy's QR solver and a central \
+            difference approximation to the second derivative correct \
+            to second order. [Ex2] A Gauss-Seidel iterative method \
+            implemented in this program. [Ex3] Numpy's QR solver, however \
+            this time using a central difference approximation to the second \
+            derivative correct to fourth order. [Ex4] A modification of \
+            the Gauss-Seidel method, changing from the natural ordering of \
+            grid points to a Red-Black ordering, displaying the potential \
+            for exploiting parallelising the solving operation.")
     parser.add_argument("-p", "--plot", type=int, \
             help="Plot the solution to given exercise")
     parser.add_argument("-n", type=int, help="Size of the grid (nxn), \
