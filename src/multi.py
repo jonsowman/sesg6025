@@ -12,7 +12,7 @@ def verify(s, h, exno, complex=False):
     that the Laplacian is equal to 2 at coordinates (0.5, 0.5)
     with discretisation distance 'h'
     """
-    tol = 1e-02
+    tol = 1e-03
     # We will assume that we have a square matrix
     try:
         assert s.shape[0] == s.shape[1]
@@ -571,7 +571,7 @@ if __name__ == '__main__':
     parser.add_argument("-n", type=int, help="Size of the grid (nxn), \
             defaults to 3")
     parser.add_argument("-v", "--verbosity", action='count', help="Verbosity level \
-            from 1-3 inclusive")
+            0, 1 or 2 (use -v or -vv)")
     parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
             Seidel and Red-Black solvers, how many iterations to run \
             (defaults to 100)")
@@ -586,10 +586,22 @@ if __name__ == '__main__':
 
     # n is the size of the mesh with the unknowns in it
     # So the matrix will be of size n+2
+
+    # Choose and set n to a default value to begin with
+    n_default = 3
+    n = n_default
+
+    # If user supplied a custom value with -n, sanity check it before
+    # assignment to n
     if args.n:
-        n = args.n
-    else:
-        n = 3
+        if args.n < 3:
+            print("n must be at least 3, supplied %d, defaulting to n=%d" % (n,
+                n_default))
+        elif (args.n % 2) == 0:
+            print("n must be an odd number, supplied %d, defaulting to n=%d" %
+                    (args.n, n_default))
+        else:
+            n = args.n
     n_full = n + 2
 
     # Now run the exercises
