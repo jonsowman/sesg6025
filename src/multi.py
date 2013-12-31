@@ -461,7 +461,7 @@ def run_exercises(n):
 
     # For ex1 we use the np method, for ex2 we use our own SOR method
     if args.verbosity >= 1:
-        print("Solving with numpy"),
+        print("Solving with numpy QR solver"),
     ex1_soln = numpy.linalg.solve(a_simple, b_simple)
     if args.verbosity >= 1:
         print("...done")
@@ -562,6 +562,10 @@ if __name__ == '__main__':
     parser.add_argument("-v", "--verbosity", type=int, help="Verbosity level \
             from 1-3 inclusive")
     args = parser.parse_args()
+
+    if args.verbosity >= 1:
+        print("=== SESG6025 Coursework ===\n===  Jon Sowman (2013)  ===")
+        print("===========================")
 
     # Set up printing of the array so it displays nicely
     numpy.set_printoptions(precision=0, linewidth=120)
