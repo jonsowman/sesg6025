@@ -132,7 +132,9 @@ def rbstencil(n):
 def redblack(A, b, x=None, iterations=25):
     """
     Run a full red-black solution using the Gauss-Seidel method, i.e.
-    solving black using the previously computed red solution vector
+    solving black using the previously computed red solution vector.
+    Re-order the solution vector to map it back onto the natural ordered
+    grid instead of the Red-Black grid.
     """
     if x is None:
         x = numpy.zeros(len(A[0]))
@@ -153,6 +155,8 @@ def rbstep(A, b, x):
     not run in a parallel manner but could be if required.
     Note that the solution is completely parallel within the red
     solving, and ditto for the black. 
+    This linear algebra formulation is based on the method at:
+    http://www-users.cs.umn.edu/~saad/IterMethBook_2ndEd.pdf
     """
 
     n = len(A[0])
@@ -566,6 +570,7 @@ if __name__ == '__main__':
 
     # Plot the solution if required
     if args.plot:
+        ex = args.plot
         if args.verbosity >= 1:
-            print("Plotting solution to ex %d" % args.plot)
-        plot(solns[args.plot])
+            print("Plotting solution to ex %d" % ex)
+        plot(solns[ex-1])
