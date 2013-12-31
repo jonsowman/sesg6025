@@ -25,10 +25,10 @@ def verify(s, h, exno, complex=False):
     if complex:
         x = 16*s[c-1,c] - 30*s[c,c] + 16*s[c+1,c]
         y = 16*s[c,c-1] - 30*s[c,c] + 16*s[c,c+1] 
-        if c-2 in range(n):
+        if c-2 in range(size):
             x = x - s[c-2,c]
             y = y - s[c,c-2]
-        if c+2 in range(n):
+        if c+2 in range(size):
             x = x - s[c+2,c]
             y = y - s[c,c+2]
         x = x / (12*(h**2))
