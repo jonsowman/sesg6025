@@ -228,7 +228,7 @@ def complex_stencil(n):
 
     return a
 
-def simple_stencil(n, debug):
+def simple_stencil(n):
     """
     Use the stencil derived in lectures, the first central difference
     approximation
@@ -237,7 +237,7 @@ def simple_stencil(n, debug):
     # Clear matrix and set it up
     a = numpy.zeros([n**2, n**2])
 
-    if(debug):
+    if(args.verbosity >= 2):
         print('================')
         print('Interior')
 
@@ -257,7 +257,7 @@ def simple_stencil(n, debug):
             a[index, east] = 1
             a[index, south] = 1
 
-    if debug:
+    if args.verbosity >= 2:
         print(a)
 
         # Edges
@@ -284,7 +284,7 @@ def simple_stencil(n, debug):
         a[index, south] = 1
 
     # West/Left (nothing further West)
-    if debug:
+    if args.verbosity >= 2:
         print('================')
         print("West")
 
@@ -305,7 +305,7 @@ def simple_stencil(n, debug):
         a[index, south] = 1
 
     # East/Right (nothing further East)
-    if debug:
+    if args.verbosity >= 2:
         print('================')
         print("East")
 
@@ -326,7 +326,7 @@ def simple_stencil(n, debug):
         a[index, south] = 1
 
     # South / Bottom (nothing further South)
-    if debug:
+    if args.verbosity >= 2:
         print('================')
         print("South")
 
@@ -346,7 +346,7 @@ def simple_stencil(n, debug):
         a[index, east] = 1
         #a[index, south] = 1
 
-    if debug:
+    if args.verbosity >= 2:
         print('================')
         print("Corners")
 
@@ -404,7 +404,7 @@ def run_exercises(n):
     # Compute the matrices for simple and complex stencils
     if args.verbosity >= 1:
         print("Setting up simple stencil"),
-    a_simple = simple_stencil(n, args.debug)
+    a_simple = simple_stencil(n)
     if args.verbosity >= 1:
         print("...done")
         if args.verbosity >= 2:
@@ -436,7 +436,7 @@ def run_exercises(n):
 
     # Example 3: 2D heat equation in steady state
     # i.e. the Laplace equation with boundary conditions
-    if args.debug:
+    if args.verbosity >= 2:
         print('================')
     b_simple = numpy.zeros([n**2, 1])
     b_complex = numpy.zeros([n**2, 1])
@@ -496,7 +496,7 @@ def run_exercises(n):
             print("Solution is:")
             print(ex4_soln)
 
-    if args.debug:
+    if args.verbosity >= 2:
         raw_input("Press return to continue")
         print("")
 
@@ -506,7 +506,7 @@ def run_exercises(n):
     ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
     ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
 
-    if args.debug:
+    if args.verbosity >= 2:
         print('================')
     if args.verbosity >= 1:
         print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
@@ -537,10 +537,10 @@ def plot(solution):
     steps = 2.0 + n
 
     h = 1.0 / (steps - 1)
-    if args.debug:
+    if args.verbosity >= 2:
         print('h = ', h)
     X = np.arange(0, steps, 1) * h
-    if args.debug:
+    if args.verbosity >= 2:
         print(X)
         print
     Y = np.arange(0, steps, 1) * h
@@ -553,8 +553,6 @@ if __name__ == '__main__':
     # Parse the command line options
     parser = argparse.ArgumentParser(description="SESG6025 Coursework by \
             Jon Sowman. PDE solver using various methods")
-    parser.add_argument("-d", "--debug", action="store_true", \
-            help="Show debug output from program")
     parser.add_argument("-p", "--plot", type=int, \
             help="Plot the solution to given exercise")
     parser.add_argument("-n", type=int, help="Size of the grid (nxn), \
