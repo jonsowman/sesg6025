@@ -579,7 +579,10 @@ def solve_ex4(n, h, its, verbosity):
 
     return ex4_soln
 
-def run_exercises(n, its, verbosity):
+def run_exercises(n, its, verbosity, exercises):
+    """
+    Run the exercises specified, or if not specified, then run them all
+    """
     # The h value is 1/(n+2) : taking into account the intervals
     # to get to the boundary
     h = 1.0 / (n+2)
@@ -591,30 +594,42 @@ def run_exercises(n, its, verbosity):
 
     # Run the solutions, embed them in a solution matrix with boundary
     # conditions and then verify each solution in turn
-    if verbosity >= 1:
-        print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
-    ex1_soln = solve_ex1(n, h, its, verbosity)
-    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
-    verify(ex1_full, h, 1)
+    if 1 in exercises:
+        if verbosity >= 1:
+            print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
+        ex1_soln = solve_ex1(n, h, its, verbosity)
+        ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
+        verify(ex1_full, h, 1)
+    else:
+        ex1_full = None
 
-    if verbosity >= 1:
-        print("Exercise 2: Solve PDE using SOR solver and simple stencil")
-    ex2_soln = solve_ex2(n, h, its, verbosity)
-    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
-    verify(ex2_full, h, 2)
+    if 2 in exercises:
+        if verbosity >= 1:
+            print("Exercise 2: Solve PDE using SOR solver and simple stencil")
+        ex2_soln = solve_ex2(n, h, its, verbosity)
+        ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
+        verify(ex2_full, h, 2)
+    else:
+        ex2_full = None
 
-    if verbosity >= 1:
-        print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
-    ex3_soln = solve_ex3(n, h, its, verbosity)
-    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
-    verify(ex3_full, h, 3, complex=True)
+    if 3 in exercises:
+        if verbosity >= 1:
+            print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
+        ex3_soln = solve_ex3(n, h, its, verbosity)
+        ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
+        verify(ex3_full, h, 3, complex=True)
+    else:
+        ex3_full = None
 
-    if verbosity >= 1:
-        print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
-                "and simple stencil")
-    ex4_soln = solve_ex4(n, h, its, verbosity)
-    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
-    verify(ex4_full, h, 4)
+    if 4 in exercises:
+        if verbosity >= 1:
+            print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
+                    "and simple stencil")
+        ex4_soln = solve_ex4(n, h, its, verbosity)
+        ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
+        verify(ex4_full, h, 4)
+    else:
+        ex4_full = None
 
     return [ex1_full, ex2_full, ex3_full, ex4_full]
 
@@ -666,14 +681,21 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
             Seidel and Red-Black solvers, the maximum number of iterations \
             (defaults to 10000)")
+    parser.add_argument("-e", "--exercises", nargs='+', type=int,
+            help="Run the provided exercises from 1-4 inclusive")
     args = parser.parse_args()
 
     # Choose a verbosity level
     verbosity = args.verbosity if args.verbosity else 0
-
     if verbosity >= 1:
         print("=== SESG6025 Coursework ===\n===  Jon Sowman (2013)  ===")
         print("===========================")
+
+    # Which exercises do we want to run?
+    if not args.exercises:
+        exercises = range(1, 5)
+    else:
+        exercises = args.exercises
 
     # Set up printing of the array so it displays nicely
     numpy.set_printoptions(precision=0, linewidth=120)
@@ -698,7 +720,7 @@ if __name__ == '__main__':
             n = args.n
 
     # Now run the exercises using an NxN grid
-    solns = run_exercises(n, its, verbosity)
+    solns = run_exercises(n, its, verbosity, exercises)
 
     # Plot the solution if required
     if args.plot:
