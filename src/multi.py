@@ -424,14 +424,11 @@ def simple_stencil(n):
 
     return a
 
-def run_exercises(n):
-    # The h value is 1/(n+2) : taking into account the intervals
-    # to get to the boundary
-    h = 1.0 / (n+2)
-
-    # Determine max number of iterations to run for the iterative methods
-    its = args.iterations if args.iterations else 1000
-
+def solve_ex1(n, h, its):
+    """
+    Solve and return exercise 1, which is the simple stencil using the numpy QR
+    solver
+    """
     # Compute the matrices for simple and complex stencils
     if args.verbosity >= 1:
         print("Setting up simple stencil"),
@@ -441,54 +438,18 @@ def run_exercises(n):
         if args.verbosity >= 2:
             print("Simple stencil is")
             print(a_simple)
-
-    if args.verbosity >= 1:
-        print("Setting up complex stencil"),
-    a_complex = complex_stencil(n)
-    if args.verbosity >= 1:
-        print("...done")
-        if args.verbosity >= 2:
-            print("Complex stencil is")
-            print(a_complex)
-
-    if args.verbosity >= 1:
-        print("Setting up red-black stencil"),
-    a_redblack = rbstencil(n)
-    if args.verbosity >= 1:
-        print("...done")
-        if args.verbosity >= 2:
-            print("Red-black stencil is")
-            print(a_redblack)
-
-    # Reset printing options
-    numpy.set_printoptions()
-    numpy.set_printoptions(edgeitems=3, infstr='inf', linewidth=75, nanstr='nan',
-            precision=8, suppress=False, threshold=1000)
-
-    # Example 3: 2D heat equation in steady state
-    # i.e. the Laplace equation with boundary conditions
-    if args.verbosity >= 2:
-        print('================')
-    b_simple = numpy.zeros([n**2, 1])
-    b_complex = numpy.zeros([n**2, 1])
-    b_redblack = numpy.zeros([n**2])
-
+    
     # For rho(0.5, 0.5) = 2 we just require that the middle element of b
     # is -2*(h**2), as per equation 4.51 for the simple stencil.
     # For the complex stencil there's a factor of 12 in there too
     # For the red-black solver, the linear system of equations is in a different
     # order
+    b_simple = numpy.zeros([n**2, 1])
     b_simple[((n**2)-1)/2] = 2*(h**2)
-    b_complex[((n**2)-1)/2] = 12*2*(h**2)
-    b_redblack[(n**2)/4] = 2*(h**2)
-
+    
     if args.verbosity >= 2:
         print("b_simple is:")
         print(b_simple)
-        print("b_complex is:")
-        print(b_complex)
-        print("b_redblack is:")
-        print(b_redblack)
 
     # For ex1 we use the np method, for ex2 we use our own SOR method
     if args.verbosity >= 1:
@@ -500,6 +461,37 @@ def run_exercises(n):
             print("Solution is:")
             print(ex1_soln)
 
+    return ex1_soln
+
+def solve_ex2(n, h, its):
+    """
+    Solve exercise 2, which is the simple stencil but using our own
+    successive-over-relaxation implementation of the Gauss-Seidel iterative
+    method
+    """
+    # Compute the matrices for simple and complex stencils
+    if args.verbosity >= 1:
+        print("Setting up simple stencil"),
+    a_simple = simple_stencil(n)
+    if args.verbosity >= 1:
+        print("...done")
+        if args.verbosity >= 2:
+            print("Simple stencil is")
+            print(a_simple)
+    
+    # For rho(0.5, 0.5) = 2 we just require that the middle element of b
+    # is -2*(h**2), as per equation 4.51 for the simple stencil.
+    # For the complex stencil there's a factor of 12 in there too
+    # For the red-black solver, the linear system of equations is in a different
+    # order
+    b_simple = numpy.zeros([n**2, 1])
+    b_simple[((n**2)-1)/2] = 2*(h**2)
+    
+    if args.verbosity >= 2:
+        print("b_simple is:")
+        print(b_simple)
+
+    # Solve using the sor() method
     if args.verbosity >= 1:
         print("Solving with Gauss-Seidel"),
     [ex2_soln, ex2_its] = sor(a_simple, b_simple, its)
@@ -508,6 +500,34 @@ def run_exercises(n):
         if args.verbosity >= 2:
             print("Solution is:")
             print(ex2_soln)
+
+    return ex2_soln
+
+def solve_ex3(n, h, its):
+    """
+    Solve exercise 3, which is the same PDE but using a more complex stencil
+    given in the lecture notes which is correct to fourth order.
+    """
+    if args.verbosity >= 1:
+        print("Setting up complex stencil"),
+    a_complex = complex_stencil(n)
+    if args.verbosity >= 1:
+        print("...done")
+        if args.verbosity >= 2:
+            print("Complex stencil is")
+            print(a_complex)
+
+    # For rho(0.5, 0.5) = 2 we just require that the middle element of b
+    # is -2*(h**2), as per equation 4.51 for the simple stencil.
+    # For the complex stencil there's a factor of 12 in there too
+    # For the red-black solver, the linear system of equations is in a different
+    # order
+    b_complex = numpy.zeros([n**2, 1])
+    b_complex[((n**2)-1)/2] = 12*2*(h**2)
+
+    if args.verbosity >= 2:
+        print("b_complex is:")
+        print(b_complex)
 
     # Now let's solve the complex stencil problem
     if args.verbosity >= 1:
@@ -519,6 +539,34 @@ def run_exercises(n):
             print("Solution is:")
             print(ex3_soln)
 
+    return ex3_soln
+
+def solve_ex4(n, h, its):
+    """
+    Solve exercise 4, which uses the numpy QR solver but in a parallelisable
+    ordering of the solution matrix grid points known as red-black
+    """
+    if args.verbosity >= 1:
+        print("Setting up red-black stencil"),
+    a_redblack = rbstencil(n)
+    if args.verbosity >= 1:
+        print("...done")
+        if args.verbosity >= 2:
+            print("Red-black stencil is")
+            print(a_redblack)
+
+    # For rho(0.5, 0.5) = 2 we just require that the middle element of b
+    # is -2*(h**2), as per equation 4.51 for the simple stencil.
+    # For the complex stencil there's a factor of 12 in there too
+    # For the red-black solver, the linear system of equations is in a different
+    # order
+    b_redblack = numpy.zeros([n**2])
+    b_redblack[(n**2)/4] = 2*(h**2)
+
+    if args.verbosity >= 2:
+        print("b_redblack is:")
+        print(b_redblack)
+
     # Finally, solve the red-black problem
     if args.verbosity >= 1:
         print("Solving simple stencil in Red-Black formulation"),
@@ -529,24 +577,43 @@ def run_exercises(n):
             print("Solution is:")
             print(ex4_soln)
 
-    # Wrap the solution onto grid and embed into a solution matrix
-    # containing boundary conditions
-    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
-    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
-    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
-    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
+    return ex4_soln
 
-    if args.verbosity >= 2:
-        print('================')
+def run_exercises(n):
+    # The h value is 1/(n+2) : taking into account the intervals
+    # to get to the boundary
+    h = 1.0 / (n+2)
+
+    # Determine max number of iterations to run for the iterative methods
+    its = args.iterations if args.iterations else 1000
+
+    # Reset printing options
+    numpy.set_printoptions()
+    numpy.set_printoptions(edgeitems=3, infstr='inf', linewidth=75, nanstr='nan',
+            precision=8, suppress=False, threshold=1000)
+
+    # Run the solutions, embed them in a solution matrix with boundary
+    # conditions and then verify each solution in turn
+    ex1_soln = solve_ex1(n, h, its)
+    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
     verify(ex1_full, h, 1)
+
+    ex2_soln = solve_ex2(n, h, its)
+    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 2: Solve PDE using SOR solver and simple stencil")
     verify(ex2_full, h, 2)
+
+    ex3_soln = solve_ex3(n, h, its)
+    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
     verify(ex3_full, h, 3, complex=True)
+
+    ex4_soln = solve_ex4(n, h, its)
+    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
                 "and simple stencil")
