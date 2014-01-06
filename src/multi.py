@@ -13,7 +13,7 @@ def verify(s, h, exno, complex=False):
     distance 'h'. Additionally takes the exercise number for printing reasons,
     and whether we're using the complex stencil or otherwise.
     """
-    tol = 1e-03
+    tol = 1e-08
     # We will assume that we have a square matrix
     try:
         assert s.shape[0] == s.shape[1]
