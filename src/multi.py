@@ -84,6 +84,10 @@ def sor(A, b, its, x=None, omega=1.0):
             break
         x_old = x.copy()
 
+    # Check that we didn't hit max_its -- warn if so
+    if it == (its - 1):
+        print("[WARN] Iterations limit exceeded, exiting")
+
     return [x, it]
 
 def embed(a):
@@ -156,7 +160,11 @@ def redblack(A, b, its, x=None):
         x = rbstep(A, b, x)
         if numpy.allclose(x, x_old):
             break
-        x_old = x
+        x_old = x.copy()
+
+    # Check that we didn't hit max_its -- warn if so
+    if i == (its - 1):
+        print("[WARN] Iterations limit exceeded, exiting")
 
     # Reorder the solution vector
     c = x.size/2
@@ -606,10 +614,10 @@ if __name__ == '__main__':
     # assignment to n
     if args.n:
         if args.n < 3:
-            print("n must be at least 3, supplied %d, defaulting to n=%d" % 
+            print("[WARN] n must be at least 3, supplied %d, defaulting to n=%d" % 
                     (args.n, n_default))
         elif (args.n % 2) == 0:
-            print("n must be an odd number, supplied %d, defaulting to n=%d" %
+            print("[WARN] n must be an odd number, supplied %d, defaulting to n=%d" %
                     (args.n, n_default))
         else:
             n = args.n
