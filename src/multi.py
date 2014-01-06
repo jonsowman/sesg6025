@@ -256,7 +256,7 @@ def complex_stencil(n):
 
     return a
 
-def simple_stencil(n):
+def simple_stencil(n, verbosity):
     """
     Use the stencil derived in lectures, the first central difference
     approximation (correct to 2nd order)
@@ -265,7 +265,7 @@ def simple_stencil(n):
     # Clear matrix and set it up
     a = numpy.zeros([n**2, n**2])
 
-    if(args.verbosity >= 2):
+    if(verbosity >= 2):
         print('================')
         print('Interior')
 
@@ -285,7 +285,7 @@ def simple_stencil(n):
             a[index, east] = 1
             a[index, south] = 1
 
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print(a)
 
         # Edges
@@ -312,7 +312,7 @@ def simple_stencil(n):
         a[index, south] = 1
 
     # West/Left (nothing further West)
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print('================')
         print("West")
 
@@ -333,7 +333,7 @@ def simple_stencil(n):
         a[index, south] = 1
 
     # East/Right (nothing further East)
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print('================')
         print("East")
 
@@ -354,7 +354,7 @@ def simple_stencil(n):
         a[index, south] = 1
 
     # South / Bottom (nothing further South)
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print('================')
         print("South")
 
@@ -374,7 +374,7 @@ def simple_stencil(n):
         a[index, east] = 1
         #a[index, south] = 1
 
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print('================')
         print("Corners")
 
@@ -424,18 +424,18 @@ def simple_stencil(n):
 
     return a
 
-def solve_ex1(n, h, its):
+def solve_ex1(n, h, its, verbosity):
     """
     Solve and return exercise 1, which is the simple stencil using the numpy QR
     solver
     """
     # Compute the matrices for simple and complex stencils
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Setting up simple stencil"),
-    a_simple = simple_stencil(n)
-    if args.verbosity >= 1:
+    a_simple = simple_stencil(n, verbosity)
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Simple stencil is")
             print(a_simple)
     
@@ -447,35 +447,35 @@ def solve_ex1(n, h, its):
     b_simple = numpy.zeros([n**2, 1])
     b_simple[((n**2)-1)/2] = 2*(h**2)
     
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print("b_simple is:")
         print(b_simple)
 
     # For ex1 we use the np method, for ex2 we use our own SOR method
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Solving with numpy QR solver"),
     ex1_soln = numpy.linalg.solve(a_simple, b_simple)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Solution is:")
             print(ex1_soln)
 
     return ex1_soln
 
-def solve_ex2(n, h, its):
+def solve_ex2(n, h, its, verbosity):
     """
     Solve exercise 2, which is the simple stencil but using our own
     successive-over-relaxation implementation of the Gauss-Seidel iterative
     method
     """
     # Compute the matrices for simple and complex stencils
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Setting up simple stencil"),
-    a_simple = simple_stencil(n)
-    if args.verbosity >= 1:
+    a_simple = simple_stencil(n, verbosity)
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Simple stencil is")
             print(a_simple)
     
@@ -487,33 +487,33 @@ def solve_ex2(n, h, its):
     b_simple = numpy.zeros([n**2, 1])
     b_simple[((n**2)-1)/2] = 2*(h**2)
     
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print("b_simple is:")
         print(b_simple)
 
     # Solve using the sor() method
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Solving with Gauss-Seidel"),
     [ex2_soln, ex2_its] = sor(a_simple, b_simple, its)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done in %d iterations" % ex2_its)
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Solution is:")
             print(ex2_soln)
 
     return ex2_soln
 
-def solve_ex3(n, h, its):
+def solve_ex3(n, h, its, verbosity):
     """
     Solve exercise 3, which is the same PDE but using a more complex stencil
     given in the lecture notes which is correct to fourth order.
     """
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Setting up complex stencil"),
     a_complex = complex_stencil(n)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Complex stencil is")
             print(a_complex)
 
@@ -525,33 +525,33 @@ def solve_ex3(n, h, its):
     b_complex = numpy.zeros([n**2, 1])
     b_complex[((n**2)-1)/2] = 12*2*(h**2)
 
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print("b_complex is:")
         print(b_complex)
 
     # Now let's solve the complex stencil problem
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Solving complex stencil using numpy"),
     ex3_soln = numpy.linalg.solve(a_complex, b_complex)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Solution is:")
             print(ex3_soln)
 
     return ex3_soln
 
-def solve_ex4(n, h, its):
+def solve_ex4(n, h, its, verbosity):
     """
     Solve exercise 4, which uses the numpy QR solver but in a parallelisable
     ordering of the solution matrix grid points known as red-black
     """
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Setting up red-black stencil"),
     a_redblack = rbstencil(n)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done")
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Red-black stencil is")
             print(a_redblack)
 
@@ -563,29 +563,26 @@ def solve_ex4(n, h, its):
     b_redblack = numpy.zeros([n**2])
     b_redblack[(n**2)/4] = 2*(h**2)
 
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print("b_redblack is:")
         print(b_redblack)
 
     # Finally, solve the red-black problem
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Solving simple stencil in Red-Black formulation"),
     [ex4_soln, ex4_its] = redblack(a_redblack, b_redblack, its)
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("...done in %d iterations" % ex4_its)
-        if args.verbosity >= 2:
+        if verbosity >= 2:
             print("Solution is:")
             print(ex4_soln)
 
     return ex4_soln
 
-def run_exercises(n):
+def run_exercises(n, its, verbosity):
     # The h value is 1/(n+2) : taking into account the intervals
     # to get to the boundary
     h = 1.0 / (n+2)
-
-    # Determine max number of iterations to run for the iterative methods
-    its = args.iterations if args.iterations else 10000
 
     # Reset printing options
     numpy.set_printoptions()
@@ -594,34 +591,34 @@ def run_exercises(n):
 
     # Run the solutions, embed them in a solution matrix with boundary
     # conditions and then verify each solution in turn
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
-    ex1_soln = solve_ex1(n, h, its)
+    ex1_soln = solve_ex1(n, h, its, verbosity)
     ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
     verify(ex1_full, h, 1)
 
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Exercise 2: Solve PDE using SOR solver and simple stencil")
-    ex2_soln = solve_ex2(n, h, its)
+    ex2_soln = solve_ex2(n, h, its, verbosity)
     ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
     verify(ex2_full, h, 2)
 
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
-    ex3_soln = solve_ex3(n, h, its)
+    ex3_soln = solve_ex3(n, h, its, verbosity)
     ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
     verify(ex3_full, h, 3, complex=True)
 
-    if args.verbosity >= 1:
+    if verbosity >= 1:
         print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
                 "and simple stencil")
-    ex4_soln = solve_ex4(n, h, its)
+    ex4_soln = solve_ex4(n, h, its, verbosity)
     ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
     verify(ex4_full, h, 4)
 
     return [ex1_full, ex2_full, ex3_full, ex4_full]
 
-def plot(solution):
+def plot(solution, verbosity):
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib import cm
     from matplotlib.ticker import LinearLocator, FormatStrFormatter
@@ -633,10 +630,10 @@ def plot(solution):
     steps = 2.0 + n
 
     h = 1.0 / (steps - 1)
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print('h = ', h)
     X = numpy.arange(0, steps, 1) * h
-    if args.verbosity >= 2:
+    if verbosity >= 2:
         print(X)
         print
     Y = numpy.arange(0, steps, 1) * h
@@ -671,7 +668,10 @@ if __name__ == '__main__':
             (defaults to 10000)")
     args = parser.parse_args()
 
-    if args.verbosity >= 1:
+    # Choose a verbosity level
+    verbosity = args.verbosity if args.verbosity else 0
+
+    if verbosity >= 1:
         print("=== SESG6025 Coursework ===\n===  Jon Sowman (2013)  ===")
         print("===========================")
 
@@ -681,6 +681,9 @@ if __name__ == '__main__':
     # Choose and set n to a default value to begin with
     n_default = 3
     n = n_default
+
+    # Determine the iterations limit for the GS methods
+    its = args.iterations if args.iterations else 10000
 
     # If user supplied a custom value with -n, sanity check it before
     # assignment to n
@@ -695,11 +698,11 @@ if __name__ == '__main__':
             n = args.n
 
     # Now run the exercises using an NxN grid
-    solns = run_exercises(n)
+    solns = run_exercises(n, its, verbosity)
 
     # Plot the solution if required
     if args.plot:
         ex = args.plot
-        if args.verbosity >= 1:
+        if verbosity >= 1:
             print("Plotting solution to ex %d" % ex)
-        plot(solns[ex-1])
+        plot(solns[ex-1], verbosity)
