@@ -585,7 +585,7 @@ def run_exercises(n):
     h = 1.0 / (n+2)
 
     # Determine max number of iterations to run for the iterative methods
-    its = args.iterations if args.iterations else 1000
+    its = args.iterations if args.iterations else 10000
 
     # Reset printing options
     numpy.set_printoptions()
@@ -668,7 +668,7 @@ if __name__ == '__main__':
             0, 1 or 2 (use -v or -vv)")
     parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
             Seidel and Red-Black solvers, the maximum number of iterations \
-            (defaults to 1000)")
+            (defaults to 10000)")
     args = parser.parse_args()
 
     if args.verbosity >= 1:
