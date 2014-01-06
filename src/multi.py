@@ -49,7 +49,7 @@ def verify(s, h, exno, complex=False):
                 'u = 2 within ' + u'\u00b1' + str(tol) + \
                 ' at u = (0.5,0.5) as required')
 
-def sor(A, b, iterations=25, x=None, omega=1.0):
+def sor(A, b, its, x=None, omega=1.0):
     """
     Solve the linear matrix equation Ax = b via the (successive
     over relaxation (SOR) iterative method. 'omega' is the relaxation
@@ -67,8 +67,11 @@ def sor(A, b, iterations=25, x=None, omega=1.0):
     # Get the number of elements in x
     n = len(A[0])
 
+    # Hold the old solution vector for convergence detection
+    x_old = numpy.empty(x.size)
+
     # Iterate 'iterations' times
-    for its in range(iterations):
+    for it in range(its):
         for i in range(n):
             t1 = 0
             t2 = 0
@@ -77,7 +80,11 @@ def sor(A, b, iterations=25, x=None, omega=1.0):
             for j in range(i+1, n):
                 t2 = t2 + A[i, j] * x[j]
             x[i] = omega/A[i, i] * (b[i] - t1 - t2) + (1.0-omega)*x[i]
-    return x
+        if numpy.allclose(x, x_old):
+            break
+        x_old = x.copy()
+
+    return [x, it]
 
 def embed(a):
     """
@@ -132,7 +139,7 @@ def rbstencil(n):
                 A[idx, east] = 1
     return A
 
-def redblack(A, b, x=None, iterations=25):
+def redblack(A, b, its, x=None):
     """
     Run a full red-black solution using the Gauss-Seidel method, i.e.
     solving black using the previously computed red solution vector.
@@ -142,15 +149,21 @@ def redblack(A, b, x=None, iterations=25):
     if x is None:
         x = numpy.zeros(len(A[0]))
 
-    for i in range(iterations):
+    # Hold the old answer for convergence detection
+    x_old = x
+
+    for i in range(its):
         x = rbstep(A, b, x)
+        if numpy.allclose(x, x_old):
+            break
+        x_old = x
 
     # Reorder the solution vector
     c = x.size/2
     sol = numpy.empty(x.size, dtype=x.dtype)
     sol[0::2] = x[0:c+1]
     sol[1::2] = x[c+1:len(x)]
-    return sol
+    return [sol, i]
 
 def rbstep(A, b, x):
     """
@@ -402,8 +415,8 @@ def run_exercises(n):
     # to get to the boundary
     h = 1.0 / n_full
 
-    # Determine number of iterations to run for the GS iterative methods
-    its = args.iterations if args.iterations else 100
+    # Determine max number of iterations to run for the iterative methods
+    its = args.iterations if args.iterations else 1000
 
     # Compute the matrices for simple and complex stencils
     if args.verbosity >= 1:
@@ -472,10 +485,12 @@ def run_exercises(n):
         if args.verbosity >= 2:
             print("Solution is:")
             print(ex1_soln)
-        print("Solving with Gauss-Seidel"),
-    ex2_soln = sor(a_simple, b_simple, iterations=its)
+
     if args.verbosity >= 1:
-        print("...done")
+        print("Solving with Gauss-Seidel"),
+    [ex2_soln, ex2_its] = sor(a_simple, b_simple, its)
+    if args.verbosity >= 1:
+        print("...done in %d iterations" % ex2_its)
         if args.verbosity >= 2:
             print("Solution is:")
             print(ex2_soln)
@@ -493,9 +508,9 @@ def run_exercises(n):
     # Finally, solve the red-black problem
     if args.verbosity >= 1:
         print("Solving simple stencil in Red-Black formulation"),
-    ex4_soln = redblack(a_redblack, b_redblack, iterations=its)
+    [ex4_soln, ex4_its] = redblack(a_redblack, b_redblack, its)
     if args.verbosity >= 1:
-        print("...done")
+        print("...done in %d iterations" % ex4_its)
         if args.verbosity >= 2:
             print("Solution is:")
             print(ex4_soln)
@@ -572,8 +587,8 @@ if __name__ == '__main__':
     parser.add_argument("-v", "--verbosity", action='count', help="Verbosity level \
             0, 1 or 2 (use -v or -vv)")
     parser.add_argument("-i", "--iterations", type=int, help="For Gauss \
-            Seidel and Red-Black solvers, how many iterations to run \
-            (defaults to 100)")
+            Seidel and Red-Black solvers, the maximum number of iterations \
+            (defaults to 1000)")
     args = parser.parse_args()
 
     if args.verbosity >= 1:
