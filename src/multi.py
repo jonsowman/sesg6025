@@ -1,7 +1,12 @@
-##
-# SESG6025 PDE Courswork
-# Jon Sowman 2013
+#######################################
 #
+# SESG6025 PDE Courswork
+#
+# Jon Sowman 2013
+# <js39g13@soton.ac.uk>
+#
+#######################################
+
 import numpy
 import scipy
 import argparse
@@ -42,8 +47,8 @@ def verify(s, h, exno, complex=False):
     try:
         assert numpy.allclose(result, 2.0, atol=tol)
     except AssertionError:
-        print('[ERROR Ex'+str(exno)+'] Solution verification failed: ' + \
-                ' %.3f', result)
+        print('[ERROR Ex' + str(exno) + '] Solution verification failed: ' \
+                + ' %.3f', result)
     else:
         print('[Ex' + str(exno) + '] ' + u'\u2207\u00b2' + \
                 'u = 2 within ' + u'\u00b1' + str(tol) + \
@@ -106,7 +111,7 @@ def embed(a):
 def rbidx(i, j, n):
     """
     Calculate the index for a red-black node at grid coordinates (i, j) 
-    given that top left node is always red.
+    given that top left node is node 0 and is always red.
     """
     idx = (i*n+j+1)/2 + (n**2)/2 if (i+j)%2 else (i*n+j)/2
     return idx
@@ -554,7 +559,6 @@ def plot(solution):
     from matplotlib import cm
     from matplotlib.ticker import LinearLocator, FormatStrFormatter
     import matplotlib.pyplot as plt
-    import numpy as np
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -564,12 +568,12 @@ def plot(solution):
     h = 1.0 / (steps - 1)
     if args.verbosity >= 2:
         print('h = ', h)
-    X = np.arange(0, steps, 1) * h
+    X = numpy.arange(0, steps, 1) * h
     if args.verbosity >= 2:
         print(X)
         print
-    Y = np.arange(0, steps, 1) * h
-    X, Y = np.meshgrid(X, Y)
+    Y = numpy.arange(0, steps, 1) * h
+    X, Y = numpy.meshgrid(X, Y)
 
     surf = ax.plot_wireframe(X, Y, solution, rstride=1, cstride=1)
     plt.show()
