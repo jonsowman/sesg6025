@@ -697,15 +697,14 @@ if __name__ == '__main__':
     else:
         exercises = args.exercises
 
+    # Determine the iterations limit for the GS methods
+    its = args.iterations if args.iterations else 10000
+
     # Set up printing of the array so it displays nicely
     numpy.set_printoptions(precision=0, linewidth=120)
 
     # Choose and set n to a default value to begin with
-    n_default = 3
-    n = n_default
-
-    # Determine the iterations limit for the GS methods
-    its = args.iterations if args.iterations else 10000
+    n = n_default = 3
 
     # If user supplied a custom value with -n, sanity check it before
     # assignment to n
@@ -725,6 +724,10 @@ if __name__ == '__main__':
     # Plot the solution if required
     if args.plot:
         ex = args.plot
-        if verbosity >= 1:
-            print("Plotting solution to ex %d" % ex)
-        plot(solns[ex-1], verbosity)
+        if ex not in exercises:
+            print("[ERROR] Requested plotting of exercise that wasn't run, " + \
+                    "aborting")
+        else:
+            if verbosity >= 1:
+                print("Plotting solution to ex %d" % ex)
+            plot(solns[ex-1], verbosity)
