@@ -594,29 +594,29 @@ def run_exercises(n):
 
     # Run the solutions, embed them in a solution matrix with boundary
     # conditions and then verify each solution in turn
-    ex1_soln = solve_ex1(n, h, its)
-    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
+    ex1_soln = solve_ex1(n, h, its)
+    ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
     verify(ex1_full, h, 1)
 
-    ex2_soln = solve_ex2(n, h, its)
-    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 2: Solve PDE using SOR solver and simple stencil")
+    ex2_soln = solve_ex2(n, h, its)
+    ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
     verify(ex2_full, h, 2)
 
-    ex3_soln = solve_ex3(n, h, its)
-    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
+    ex3_soln = solve_ex3(n, h, its)
+    ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
     verify(ex3_full, h, 3, complex=True)
 
-    ex4_soln = solve_ex4(n, h, its)
-    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
     if args.verbosity >= 1:
         print("Exercise 4: Solve PDE using Gauss-Seidel Red/Black solver " + \
                 "and simple stencil")
+    ex4_soln = solve_ex4(n, h, its)
+    ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
     verify(ex4_full, h, 4)
 
     return [ex1_full, ex2_full, ex3_full, ex4_full]
