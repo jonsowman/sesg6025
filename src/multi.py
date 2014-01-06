@@ -85,7 +85,7 @@ def sor(A, b, its, x=None, omega=1.0):
             for j in range(i+1, n):
                 t2 = t2 + A[i, j] * x[j]
             x[i] = omega/A[i, i] * (b[i] - t1 - t2) + (1.0-omega)*x[i]
-        if numpy.allclose(x, x_old):
+        if numpy.allclose(x, x_old, rtol=1e-09):
             break
         x_old = x.copy()
 
@@ -163,7 +163,7 @@ def redblack(A, b, its, x=None):
     # Iterate until convergence or we hit the max iterations value
     for i in range(its):
         x = rbstep(A, b, x)
-        if numpy.allclose(x, x_old):
+        if numpy.allclose(x, x_old, rtol=1e-09):
             break
         x_old = x.copy()
 
