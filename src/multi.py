@@ -70,7 +70,7 @@ def sor(A, b, its, x=None, omega=1.0):
     # Hold the old solution vector for convergence detection
     x_old = numpy.empty(x.size)
 
-    # Iterate 'iterations' times
+    # Iterate 'iterations' times maximum, stop if we reach convergence
     for it in range(its):
         for i in range(n):
             t1 = 0
@@ -156,6 +156,7 @@ def redblack(A, b, its, x=None):
     # Hold the old answer for convergence detection
     x_old = x
 
+    # Iterate until convergence or we hit the max iterations value
     for i in range(its):
         x = rbstep(A, b, x)
         if numpy.allclose(x, x_old):
@@ -212,7 +213,7 @@ def rbstep(A, b, x):
 def complex_stencil(n):
     """
     Use the more complex 8 point stencil described in the coursework handout
-    to construct the matrix a
+    to construct the matrix a (correct to 4th order)
     """
 
     a = numpy.zeros([n**2, n**2])
@@ -253,7 +254,7 @@ def complex_stencil(n):
 def simple_stencil(n):
     """
     Use the stencil derived in lectures, the first central difference
-    approximation
+    approximation (correct to 2nd order)
     """
 
     # Clear matrix and set it up
@@ -421,7 +422,7 @@ def simple_stencil(n):
 def run_exercises(n):
     # The h value is 1/(n+2) : taking into account the intervals
     # to get to the boundary
-    h = 1.0 / n_full
+    h = 1.0 / (n+2)
 
     # Determine max number of iterations to run for the iterative methods
     its = args.iterations if args.iterations else 1000
@@ -621,7 +622,6 @@ if __name__ == '__main__':
                     (args.n, n_default))
         else:
             n = args.n
-    n_full = n + 2
 
     # Now run the exercises using an NxN grid
     solns = run_exercises(n)
