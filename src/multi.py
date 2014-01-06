@@ -93,7 +93,6 @@ def sor(A, b, its, x=None, omega=1.0):
 def embed(a):
     """
     Embed solution matrix into a matrix with the boundary conditions.
-    a is the matrix and value is the value on the (fixed) boundary
     """
     size = a.shape[0]
     a_tmp = numpy.zeros([size+2, size+2])
@@ -167,7 +166,8 @@ def redblack(A, b, its, x=None):
     if i == (its - 1):
         print("[WARN] Iterations limit exceeded, exiting")
 
-    # Reorder the solution vector
+    # Reorder the solution vector by interleaving the red and black
+    # solution vectors
     c = x.size/2
     sol = numpy.empty(x.size, dtype=x.dtype)
     sol[0::2] = x[0:c+1]
@@ -179,7 +179,7 @@ def rbstep(A, b, x):
     Run one iteration of the Red-Black Gauss-Seidel solver. This is
     not run in a parallel manner but could be if required.
     Note that the solution is completely parallel within the red
-    solving, and ditto for the black. 
+    solving, and ditto for the black (Db & Dr are diagonal). 
     This linear algebra formulation is based on the method at:
     http://www-users.cs.umn.edu/~saad/IterMethBook_2ndEd.pdf
     """
