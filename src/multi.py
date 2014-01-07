@@ -11,7 +11,7 @@ import numpy
 import scipy
 import argparse
 
-def verify(s, h, exno, complex=False):
+def verify(s, h, exno, verbosity, complex=False):
     """
     Verify that the solution matrix 's' meets the requirement that the
     Laplacian is equal to 2 at coordinates (0.5, 0.5) with discretisation
@@ -50,9 +50,10 @@ def verify(s, h, exno, complex=False):
         print('[ERROR Ex' + str(exno) + '] Solution verification failed: ' \
                 + ' %.3f', result)
     else:
-        print('[Ex' + str(exno) + '] ' + u'\u2207\u00b2' + \
-                'u = 2 within ' + u'\u00b1' + str(tol) + \
-                ' at u = (0.5,0.5) as required')
+        if verbosity >= 0:
+            print('[Ex' + str(exno) + '] ' + u'\u2207\u00b2' + \
+                    'u = 2 within ' + u'\u00b1' + str(tol) + \
+                    ' at u = (0.5,0.5) as required')
 
 def sor(A, b, its, x=None, omega=1.0):
     """
@@ -599,7 +600,7 @@ def run_exercises(n, its, verbosity, exercises, omega):
             print("Exercise 1: Solve PDE using numpy QR solver and simple stencil")
         ex1_soln = solve_ex1(n, h, its, verbosity)
         ex1_full = embed(numpy.reshape(ex1_soln, [n, n]))
-        verify(ex1_full, h, 1)
+        verify(ex1_full, h, 1, verbosity)
     else:
         ex1_full = None
 
@@ -608,7 +609,7 @@ def run_exercises(n, its, verbosity, exercises, omega):
             print("Exercise 2: Solve PDE using SOR solver and simple stencil")
         ex2_soln = solve_ex2(n, h, its, verbosity, omega)
         ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
-        verify(ex2_full, h, 2)
+        verify(ex2_full, h, 2, verbosity)
     else:
         ex2_full = None
 
@@ -617,7 +618,7 @@ def run_exercises(n, its, verbosity, exercises, omega):
             print("Exercise 3: Solve PDE using numpy QR solver and complex stencil")
         ex3_soln = solve_ex3(n, h, its, verbosity)
         ex3_full = embed(numpy.reshape(ex3_soln, [n, n]))
-        verify(ex3_full, h, 3, complex=True)
+        verify(ex3_full, h, 3, verbosity, complex=True)
     else:
         ex3_full = None
 
@@ -627,7 +628,7 @@ def run_exercises(n, its, verbosity, exercises, omega):
                     "and simple stencil")
         ex4_soln = solve_ex4(n, h, its, verbosity)
         ex4_full = embed(numpy.reshape(ex4_soln, [n, n]))
-        verify(ex4_full, h, 4)
+        verify(ex4_full, h, 4, verbosity)
     else:
         ex4_full = None
 
@@ -683,6 +684,8 @@ if __name__ == '__main__':
             (defaults to 10000)")
     parser.add_argument("-e", "--exercises", nargs='+', type=int,
             help="Run the provided exercises from 1-4 inclusive")
+    parser.add_argument("-q", "--quiet", action="store_true", 
+            help="Suppress all program output")
     args = parser.parse_args()
 
     # Choose a verbosity level
@@ -690,6 +693,10 @@ if __name__ == '__main__':
     if verbosity >= 1:
         print("=== SESG6025 Coursework ===\n===  Jon Sowman (2013)  ===")
         print("===========================")
+
+    # Should we shut up?
+    if args.quiet:
+        verbosity = -1
 
     # Which exercises do we want to run?
     if not args.exercises:
@@ -718,8 +725,8 @@ if __name__ == '__main__':
         else:
             n = args.n
 
-    # Now run the exercises using an NxN grid
-    solns = run_exercises(n, its, verbosity, exercises)
+    # Now run the exercises using an NxN grid with omega = 1.75
+    solns = run_exercises(n, its, verbosity, exercises, 1.75)
 
     # Plot the solution if required
     if args.plot:
