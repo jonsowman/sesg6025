@@ -463,7 +463,7 @@ def solve_ex1(n, h, its, verbosity):
 
     return ex1_soln
 
-def solve_ex2(n, h, its, verbosity):
+def solve_ex2(n, h, its, verbosity, omega):
     """
     Solve exercise 2, which is the simple stencil but using our own
     successive-over-relaxation implementation of the Gauss-Seidel iterative
@@ -494,7 +494,7 @@ def solve_ex2(n, h, its, verbosity):
     # Solve using the sor() method
     if verbosity >= 1:
         print("Solving with Gauss-Seidel"),
-    [ex2_soln, ex2_its] = sor(a_simple, b_simple, its)
+    [ex2_soln, ex2_its] = sor(a_simple, b_simple, its, omega=omega)
     if verbosity >= 1:
         print("...done in %d iterations" % ex2_its)
         if verbosity >= 2:
@@ -579,7 +579,7 @@ def solve_ex4(n, h, its, verbosity):
 
     return ex4_soln
 
-def run_exercises(n, its, verbosity, exercises):
+def run_exercises(n, its, verbosity, exercises, omega):
     """
     Run the exercises specified, or if not specified, then run them all
     """
@@ -606,7 +606,7 @@ def run_exercises(n, its, verbosity, exercises):
     if 2 in exercises:
         if verbosity >= 1:
             print("Exercise 2: Solve PDE using SOR solver and simple stencil")
-        ex2_soln = solve_ex2(n, h, its, verbosity)
+        ex2_soln = solve_ex2(n, h, its, verbosity, omega)
         ex2_full = embed(numpy.reshape(ex2_soln, [n, n]))
         verify(ex2_full, h, 2)
     else:
