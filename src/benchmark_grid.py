@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 
 class args():
     n = 3
-    verbosity = 0
+    verbosity = -1
     its = 10000
-    exercises = [2]
+    exercises = [3]
     omega = 1.0
 
 def run_all():
@@ -18,7 +18,7 @@ def run_all():
 
 if __name__ == '__main__':
     # Max grid size to run
-    size = 17
+    size = 51
 
     gridpoints = numpy.array([])
     results = numpy.array([])
@@ -26,12 +26,13 @@ if __name__ == '__main__':
     for n in range(3, size, 2):
         print("running n = %d" % n)
         args.n = n
-        mtime = min(timeit.Timer(run_all).repeat(3, 1))
+        repeats = 15 if n < 30 else 5
+        mtime = min(timeit.Timer(run_all).repeat(repeats, 1))
         gridpoints = numpy.append(gridpoints, n)
         results = numpy.append(results, mtime)
 
     plt.plot(gridpoints, results)
     plt.xlabel("Grid size N")
     plt.ylabel("Run time (seconds)")
-    plt.title("Execution time for exercise 2 vs grid size")
+    plt.title("Execution time for exercise 3 vs grid size")
     plt.show()
